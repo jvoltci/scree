@@ -15,10 +15,10 @@ arr = scree.pack(seqs)
 
 # Run varlen attention. Each sequence attends only to itself.
 from scree.kernels.reference import varlen_attention
-out = varlen_attention(arr, arr, arr)
+out = varlen_attention(arr, arr, arr, causal=True)
 ```
 
-## The problem
+## Why
 
 Variable-length sequence data is everywhere in modern ML — transformer
 training, inference batching, multimodal interleaving, MoE routing — yet
@@ -28,11 +28,40 @@ every team carries their own incompatible representation:
 - TF `RaggedTensor` (TensorFlow only)
 - FlashAttention `cu_seqlens` (a convention, not a typed primitive)
 - vLLM / SGLang packed batches (internal data structures)
-- HuggingFace `attention_mask` (pads, then masks)
+- HuggingFace `attention_mask` (pads, then masks — wasting memory and FLOPs)
 
 `scree` ships one primitive — a packed `values + offsets + ragged_dim`
 array — that bridges across frameworks and ships with reference varlen
 kernels for attention, layernorm, softmax, and scatter/gather.
+
+## What you get
+
+**Memory savings vs HF padded** on realistic LLM length distributions
+(log-normal):
+
+| Workload | Mean savings | Min – Max |
+| --- | --- | --- |
+| Training-style (batch 64, mean_len 256, σ=0.6) | **71%** | 63% – 84% |
+| Inference-style (batch 32, mean_len 1024, σ=1.2) | **85%** | 75% – 94% |
+
+Reproduce: `python benchmarks/bench_memory.py`
+
+**Zero-copy bridges** to the things you already use:
+
+```python
+import scree.bridges as bridges
+
+arr = scree.from_cu_seqlens(values, cu_seqlens)         # FlashAttention
+arr = bridges.from_hf_padded(hidden_states, attn_mask)  # HuggingFace
+arr = bridges.from_torch_nested(nt)                     # torch.nested
+
+bridges.to_torch_nested(arr)   # → torch.NestedTensor
+bridges.to_hf_padded(arr)      # → (hidden_states, attention_mask)
+bridges.to_torch(arr)          # numpy values → torch tensors via DLPack
+```
+
+**One primitive, every framework** — values and offsets can be NumPy
+or PyTorch today; JAX and MLX are next.
 
 ## The name
 
@@ -42,9 +71,19 @@ irregular shapes, fitted by their irregularity, not despite it.
 
 ## Status
 
-v0.0.1, pre-alpha. The reference (slow but correct) implementations are
-present; Triton kernels at FlashAttention-varlen parity ship in the next
-release.
+v0.0.1, pre-alpha. The reference (slow but correct) Python kernels are
+present. Triton kernels at FlashAttention-varlen parity ship in v0.1.
+
+| Component | Status |
+| --- | --- |
+| `scree.Array` type + invariants | ✅ |
+| `pack` / `unpack` / `to_padded` / `from_padded` | ✅ |
+| Reference varlen attention / layernorm / softmax | ✅ |
+| Bridges: torch.nested, HF padded, FA cu_seqlens, DLPack | ✅ |
+| NumPy + PyTorch backends | ✅ |
+| Triton kernels at FA-varlen parity | 🟡 next |
+| JAX backend | 🟡 next |
+| MLX backend | ⏳ later |
 
 ## Install
 
@@ -52,6 +91,11 @@ release.
 pip install scree              # numpy backend
 pip install "scree[torch]"     # + PyTorch backend
 ```
+
+## Examples
+
+- [`examples/01_quickstart.py`](examples/01_quickstart.py) — pack/unpack + varlen attention
+- [`examples/02_no_pad_transformer.py`](examples/02_no_pad_transformer.py) — full transformer block, zero padding
 
 ## License
 
