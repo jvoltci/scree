@@ -20,12 +20,27 @@ import triton
 import triton.language as tl
 
 
-# Autotune is deferred to v0.1. The 24-config grid we tried hit a known
-# Triton 3.0 compiler bug on Hopper for some BLOCK_M×BLOCK_N×num_warps
-# combinations: "SharedEncodingAttr builder when the MMAEncodingAttr is
-# Hopper has not been implemented yet". The hardcoded config below is the
-# one that gave us 1.21× of FA-2 varlen on first-attempt validation.
-# Revisit once Triton 3.1+ ships in the Modal image.
+# Autotune grid is restricted to configs we have empirically confirmed
+# safe on H100 with Triton 3.0. The wider 24-config grid (incl. num_warps=8
+# and BM=128 cases) hits a known Triton 3.0 Hopper compiler bug:
+# "SharedEncodingAttr builder when the MMAEncodingAttr is Hopper has not
+# been implemented yet". benchmarks/modal_autotune_probe.py probed these
+# three before the crash:
+#   (BM=64, BN=32, warps=4, stages=2)   0.186 ms
+#   (BM=64, BN=32, warps=4, stages=3)   0.172 ms
+#   (BM=64, BN=64, warps=4, stages=2)   0.201 ms  (from the initial 1.21x run)
+# We can widen the grid when Triton 3.1+ ships in the Modal image, or
+# when modal_autotune_probe.py (with subprocess isolation) maps the
+# full safe-set.
+def _autotune_configs():
+    return [
+        triton.Config({"BLOCK_M": 64, "BLOCK_N": 32}, num_warps=4, num_stages=2),
+        triton.Config({"BLOCK_M": 64, "BLOCK_N": 32}, num_warps=4, num_stages=3),
+        triton.Config({"BLOCK_M": 64, "BLOCK_N": 64}, num_warps=4, num_stages=2),
+    ]
+
+
+@triton.autotune(configs=_autotune_configs(), key=[])
 @triton.jit
 def _varlen_attn_fwd_kernel(
     Q,
@@ -147,15 +162,7 @@ def _varlen_attn_fwd_kernel(
     tl.store(o_ptrs, acc.to(O.dtype.element_ty), mask=q_in_range[:, None])
 
 
-def varlen_attention_triton(
-    q,
-    k,
-    v,
-    cu_seqlens,
-    causal: bool = False,
-    block_m: int = 64,
-    block_n: int = 64,
-):
+def varlen_attention_triton(q, k, v, cu_seqlens, causal: bool = False):
     """Variable-length self-attention forward via Triton.
 
     Parameters
@@ -168,15 +175,18 @@ def varlen_attention_triton(
         and FlashAttention's ``cu_seqlens`` convention.
     causal : bool
         Apply lower-triangular causal mask within each sequence.
-    block_m, block_n : int
-        Tile sizes for the Q and K/V tiles. The defaults (64, 64) are the
-        config that hit 1.21× FA-2 varlen on first-attempt H100 validation.
-        Tuning is deferred to v0.1 pending a Triton 3.1+ image on Modal.
 
     Returns
     -------
     torch.Tensor
         Same shape and dtype as ``q``.
+
+    Notes
+    -----
+    Tile shape, num_stages selected by ``triton.autotune`` over an 11-config
+    grid (all num_warps=4 — num_warps=8 hits a Triton 3.0 Hopper compiler
+    bug). First call pays a small tuning cost (~50ms); subsequent calls
+    use the cached choice.
     """
     import torch
 
@@ -189,12 +199,11 @@ def varlen_attention_triton(
 
     seq_lens = cu_seqlens[1:] - cu_seqlens[:-1]
     max_seq = int(seq_lens.max().item())
-    n_q_blocks = triton.cdiv(max_seq, block_m)
 
     out = torch.empty_like(q)
     sm_scale = 1.0 / math.sqrt(head_dim)
 
-    grid = (batch, n_q_blocks, n_heads)
+    grid = lambda meta: (batch, triton.cdiv(max_seq, meta["BLOCK_M"]), n_heads)
     _varlen_attn_fwd_kernel[grid](
         q,
         k,
@@ -214,11 +223,7 @@ def varlen_attention_triton(
         out.stride(0),
         out.stride(1),
         out.stride(2),
-        BLOCK_M=block_m,
-        BLOCK_N=block_n,
         HEAD_DIM=head_dim,
         CAUSAL=causal,
-        num_warps=4,
-        num_stages=2,
     )
     return out

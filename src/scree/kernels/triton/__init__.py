@@ -15,8 +15,13 @@ except ImportError:
     TRITON_AVAILABLE = False
 
 if TRITON_AVAILABLE:
+    from ._autograd import varlen_attention_triton_autograd
     from .varlen_attention import varlen_attention_triton
 
-    __all__ = ["varlen_attention_triton", "TRITON_AVAILABLE"]
+    __all__ = [
+        "varlen_attention_triton",
+        "varlen_attention_triton_autograd",
+        "TRITON_AVAILABLE",
+    ]
 else:
     __all__ = ["TRITON_AVAILABLE"]
