@@ -8,7 +8,7 @@ on a packed ``scree.Array`` without unpacking.
 
 from __future__ import annotations
 
-from ..._core import Array, _is_mlx, _is_torch
+from ..._core import Array, _is_jax, _is_mlx, _is_torch
 
 
 def varlen_layernorm(
@@ -35,6 +35,17 @@ def varlen_layernorm(
         mean = mx.mean(x, axis=-1, keepdims=True)
         var = mx.var(x, axis=-1, keepdims=True)
         y = (x - mean) / mx.sqrt(var + eps)
+        if weight is not None:
+            y = y * weight
+        if bias is not None:
+            y = y + bias
+    elif _is_jax(arr.values):
+        import jax.numpy as jnp
+
+        x = arr.values
+        mean = jnp.mean(x, axis=-1, keepdims=True)
+        var = jnp.var(x, axis=-1, keepdims=True)
+        y = (x - mean) / jnp.sqrt(var + eps)
         if weight is not None:
             y = y * weight
         if bias is not None:

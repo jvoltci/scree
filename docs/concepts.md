@@ -101,14 +101,15 @@ scree is *purely* a primitive for one specific shape of data: variable-length se
 type(arr.values).__module__   # 'numpy' | 'torch' | 'mlx.core'
 ```
 
-This is implemented with two helper predicates inside [`scree._core`](../src/scree/_core.py):
+This is implemented with three helper predicates inside [`scree._core`](../src/scree/_core.py):
 
 ```python
 def _is_torch(x): return type(x).__module__.startswith("torch")
 def _is_mlx(x):   return type(x).__module__.startswith("mlx")
+def _is_jax(x):   mod = type(x).__module__; return mod.startswith("jax") or mod.startswith("jaxlib")
 ```
 
-Anything not torch or mlx falls into the NumPy code path. This is intentionally simple — no plugin registry, no protocol — and is sufficient for v0.x. When a fourth backend is added (likely JAX), the predicate joins the chain.
+Anything not torch, mlx, or jax falls into the NumPy code path. This is intentionally simple — no plugin registry, no protocol — and is sufficient for v0.x. The dispatch table is small enough to inline.
 
 ## Why backends instead of a single Array API
 

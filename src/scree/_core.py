@@ -14,6 +14,11 @@ def _is_mlx(x: Any) -> bool:
     return type(x).__module__.startswith("mlx")
 
 
+def _is_jax(x: Any) -> bool:
+    mod = type(x).__module__
+    return mod.startswith("jax") or mod.startswith("jaxlib")
+
+
 @dataclass(frozen=True)
 class Array:
     """A packed values+offsets array with one variable-length dimension.
@@ -116,6 +121,16 @@ def pack(arrays: List[Any], ragged_dim: int = 0) -> Array:
             offsets_list.append(cumsum)
         offsets = mx.array(offsets_list, dtype=mx.int32)
         values = mx.concatenate(arrays, axis=ragged_dim)
+    elif _is_jax(first):
+        import jax.numpy as jnp
+
+        cumsum = 0
+        offsets_list = [0]
+        for length in lengths:
+            cumsum += length
+            offsets_list.append(cumsum)
+        offsets = jnp.array(offsets_list, dtype=jnp.int32)
+        values = jnp.concatenate(arrays, axis=ragged_dim)
     else:
         import numpy as np
 
@@ -183,6 +198,29 @@ def to_padded(arr: Array, side: str = "right", fill_value: float = 0.0) -> Tuple
         mask = mx.stack(rows_mask, axis=0)
         return padded, mask
 
+    if _is_jax(arr.values):
+        # JAX arrays are immutable — same mutation-free pattern as MLX.
+        import jax.numpy as jnp
+
+        rows_padded = []
+        rows_mask = []
+        for i, length in enumerate(lengths):
+            start = int(arr.offsets[i])
+            row = arr.values[start : start + length]
+            pad_shape = (max_len - length, *feature_shape)
+            pad = jnp.full(pad_shape, fill_value, dtype=arr.values.dtype)
+            valid_mask = jnp.ones((length,), dtype=jnp.bool_)
+            pad_mask = jnp.zeros((max_len - length,), dtype=jnp.bool_)
+            if side == "right":
+                rows_padded.append(jnp.concatenate([row, pad], axis=0))
+                rows_mask.append(jnp.concatenate([valid_mask, pad_mask], axis=0))
+            else:
+                rows_padded.append(jnp.concatenate([pad, row], axis=0))
+                rows_mask.append(jnp.concatenate([pad_mask, valid_mask], axis=0))
+        padded = jnp.stack(rows_padded, axis=0)
+        mask = jnp.stack(rows_mask, axis=0)
+        return padded, mask
+
     if _is_torch(arr.values):
         import torch
 
@@ -239,6 +277,18 @@ def from_padded(padded: Any, mask: Any) -> Array:
             cumsum += length
             offsets_list.append(cumsum)
         offsets = mx.array(offsets_list, dtype=mx.int32)
+    elif _is_jax(padded):
+        import jax.numpy as jnp
+
+        lengths = [int(mask[i].sum()) for i in range(batch)]
+        rows = [padded[i, : lengths[i]] for i in range(batch)]
+        values = jnp.concatenate(rows, axis=0)
+        cumsum = 0
+        offsets_list = [0]
+        for length in lengths:
+            cumsum += length
+            offsets_list.append(cumsum)
+        offsets = jnp.array(offsets_list, dtype=jnp.int32)
     else:
         import numpy as np
 

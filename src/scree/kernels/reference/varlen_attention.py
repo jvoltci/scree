@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 
-from ..._core import Array, _is_mlx, _is_torch
+from ..._core import Array, _is_jax, _is_mlx, _is_torch
 
 
 def varlen_attention(q: Array, k: Array, v: Array, causal: bool = False) -> Array:
@@ -30,6 +30,33 @@ def varlen_attention(q: Array, k: Array, v: Array, causal: bool = False) -> Arra
     """
     head_dim = q.values.shape[-1]
     scale = 1.0 / math.sqrt(head_dim)
+
+    if _is_jax(q.values):
+        import jax.nn as jnn
+        import jax.numpy as jnp
+
+        if not jnp.array_equal(q.offsets, k.offsets) or not jnp.array_equal(
+            q.offsets, v.offsets
+        ):
+            raise ValueError("q, k, v must have identical offsets")
+
+        out_rows = []
+        for i in range(q.batch_size):
+            s = int(q.offsets[i])
+            e = int(q.offsets[i + 1])
+            qi = q.values[s:e]
+            ki = k.values[s:e]
+            vi = v.values[s:e]
+            scores = jnp.einsum("ihd,jhd->hij", qi, ki) * scale
+            if causal:
+                length = qi.shape[0]
+                cmask = jnp.triu(jnp.ones((length, length), dtype=bool), k=1)
+                scores = jnp.where(cmask, -jnp.inf, scores)
+            attn = jnn.softmax(scores, axis=-1)
+            out_i = jnp.einsum("hij,jhd->ihd", attn, vi)
+            out_rows.append(out_i)
+        values = jnp.concatenate(out_rows, axis=0)
+        return Array(values=values, offsets=q.offsets, ragged_dim=0)
 
     if _is_mlx(q.values):
         import mlx.core as mx

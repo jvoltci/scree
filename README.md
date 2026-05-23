@@ -84,7 +84,8 @@ bridges.to_torch(arr)          # numpy values → torch tensors via DLPack
 ```
 
 **One primitive, every framework** — values and offsets can be NumPy,
-PyTorch, or MLX (Apple Silicon, via Metal) today; JAX is next.
+PyTorch, MLX (Apple Silicon, via Metal), or JAX. All four backends pass
+the same correctness suite end-to-end.
 
 ## The name
 
@@ -103,9 +104,9 @@ present. Triton kernels at FlashAttention-varlen parity ship in v0.1.
 | `pack` / `unpack` / `to_padded` / `from_padded` | ✅ |
 | Reference varlen attention / layernorm / softmax | ✅ |
 | Bridges: torch.nested, HF padded, FA cu_seqlens, DLPack | ✅ |
-| NumPy + PyTorch + MLX backends | ✅ |
+| NumPy + PyTorch + MLX + JAX backends | ✅ |
 | Triton kernels at FA-varlen parity | 🟡 next |
-| JAX backend | 🟡 next |
+| Triton autotune (Triton 3.1+) | 🟡 next |
 
 ## Install
 
@@ -113,6 +114,7 @@ present. Triton kernels at FlashAttention-varlen parity ship in v0.1.
 pip install scree              # numpy backend
 pip install "scree[torch]"     # + PyTorch backend
 pip install "scree[mlx]"       # + MLX backend (Apple Silicon, Metal)
+pip install "scree[jax]"       # + JAX backend
 ```
 
 ## Examples

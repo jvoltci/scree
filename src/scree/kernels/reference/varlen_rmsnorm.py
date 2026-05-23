@@ -12,7 +12,7 @@ variable-length data it's just elementwise on the packed buffer.
 
 from __future__ import annotations
 
-from ..._core import Array, _is_mlx, _is_torch
+from ..._core import Array, _is_jax, _is_mlx, _is_torch
 
 
 def varlen_rmsnorm(
@@ -36,6 +36,14 @@ def varlen_rmsnorm(
 
         x = arr.values
         rms = mx.sqrt(mx.mean(x * x, axis=-1, keepdims=True) + eps)
+        y = x / rms
+        if weight is not None:
+            y = y * weight
+    elif _is_jax(arr.values):
+        import jax.numpy as jnp
+
+        x = arr.values
+        rms = jnp.sqrt(jnp.mean(x * x, axis=-1, keepdims=True) + eps)
         y = x / rms
         if weight is not None:
             y = y * weight
