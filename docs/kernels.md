@@ -117,20 +117,29 @@ This is the standard FlashAttention-2 forward, with two differences for varlen:
 1. **Per-sequence boundaries.** The launch grid is `(batch, q_block_idx, head)`. Each program reads `cu_seqlens[batch]` and `cu_seqlens[batch+1]` to find its sequence's start/end in the packed buffer. K/V tiles past the sequence end are masked out.
 2. **Causal mask within-sequence.** When `causal=True`, the mask is `q_idx >= k_idx` where both indices are *local* to the sequence — a query at position 3 in sequence 2 cannot attend to position 5 in sequence 2, and cannot attend to anything in sequence 1.
 
-### Tile shapes and autotuning
+### Tile shapes (autotuning deferred)
 
-The kernel is decorated with `@triton.autotune` over a 24-config grid:
+v0.0 ships with a hardcoded config:
 
 ```
-BLOCK_M    ∈ {64, 128}
-BLOCK_N    ∈ {32, 64, 128}
-num_warps  ∈ {4, 8}
-num_stages ∈ {2, 3}
+BLOCK_M=64, BLOCK_N=64, num_warps=4, num_stages=2
 ```
 
-On the first call, Triton runs each config once, measures, picks the fastest, and caches the choice for the lifetime of the process. The autotune overhead is ~100-200ms; amortized across thousands of subsequent calls.
+This is the config that produced the 1.21× of FA-2 result on first-attempt
+H100 validation.
 
-The `key=[]` on the autotuner means "tune once, use forever in this process." This is intentional — when head_dim changes, the kernel needs to be re-JIT'd anyway (HEAD_DIM is constexpr), so re-running autotune costs nothing extra.
+Autotune was attempted (a 24-config grid over `BLOCK_M × BLOCK_N × num_warps × num_stages`) and ran into a known Triton 3.0 compiler bug on Hopper:
+
+```
+SharedEncodingAttr builder when the MMAEncodingAttr is Hopper
+has not been implemented yet
+```
+
+The bug fires for specific `BLOCK_M × BLOCK_N × num_warps` combinations that the
+autotuner tries to compile. We have not pinned down which exact combinations trigger
+it without access to a Hopper-class GPU local to development. Autotuning is deferred
+to v0.1, pending either a Triton 3.1+ image (which fixes this) or an empirically
+narrowed safe-list of configs.
 
 ### Performance
 

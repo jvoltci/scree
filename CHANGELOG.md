@@ -8,9 +8,10 @@ All notable changes to scree are recorded here. Format follows [Keep a Changelog
 - Comprehensive documentation under `docs/` covering concepts, API reference, bridges, kernels, architecture, benchmarks, and FAQ
 - `CONTRIBUTING.md` and `CHANGELOG.md`
 - `varlen_rmsnorm` reference kernel — the norm used by LLaMA / Mistral / Mixtral / DeepSeek / Qwen and most modern open transformers (replaces LayerNorm in nearly every post-2023 architecture)
+- `benchmarks/bench_throughput.py` — CPU throughput benchmark. **6.6× faster than padded baseline** on `varlen_attention` for a realistic 16-sequence batch.
 
-### Changed
-- Triton `varlen_attention` kernel now uses `@triton.autotune` over a 24-config grid `(BLOCK_M, BLOCK_N, num_warps, num_stages)` — first call selects the best config, subsequent calls use the cached choice
+### Investigated (deferred)
+- Attempted `@triton.autotune` over a 24-config grid for `varlen_attention`. Hit a known Triton 3.0 compiler bug on Hopper: `SharedEncodingAttr builder when the MMAEncodingAttr is Hopper has not been implemented yet`. Modal retried 3× before failing. Reverted to the hardcoded `(BLOCK_M=64, BLOCK_N=64, num_warps=4, num_stages=2)` config that produced the original **1.21× of FA-2 varlen** result. Autotuning is deferred to v0.1 pending a Triton 3.1+ image on Modal.
 
 ## [0.0.1] — 2026-05-24
 
