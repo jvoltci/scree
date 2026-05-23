@@ -200,6 +200,19 @@ LayerNorm over the last dim of `arr.values`.
 
 LayerNorm is per-token (no cross-row interaction) so it's elementwise on the packed buffer.
 
+### `varlen_rmsnorm(arr, weight=None, eps=1e-6) -> Array`
+
+RMSNorm (Zhang & Sennrich, 2019) over the last dim — the norm used by
+LLaMA, Mistral, Mixtral, DeepSeek, Qwen, and most post-2023 open transformers.
+Differs from LayerNorm by dropping mean subtraction; `y = x / rms(x) * weight`.
+
+| Parameter | Type | Meaning |
+| --- | --- | --- |
+| `weight` | array or `None` | Scale parameter of shape `(feature_dim,)` |
+| `eps` | float | Numerical stability epsilon (typical 1e-6 for LLaMA-family) |
+
+Like LayerNorm, RMSNorm is per-token — elementwise on the packed buffer.
+
 ### `varlen_softmax(arr) -> Array`
 
 Softmax along the ragged dim, per-sequence. Each row is softmaxed independently.

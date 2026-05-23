@@ -35,6 +35,15 @@ y = varlen_layernorm(arr, weight=W, bias=b, eps=1e-5)
 
 LayerNorm is per-token — each row's mean and variance are computed over the last (feature) dim only, with no interaction with other rows. This means it's elementwise on the packed `values` buffer, no per-sequence loop needed.
 
+### `varlen_rmsnorm`
+
+```python
+from scree.kernels.reference import varlen_rmsnorm
+y = varlen_rmsnorm(arr, weight=W, eps=1e-6)
+```
+
+RMSNorm replaces LayerNorm in every modern open LLM (LLaMA, Mistral, Mixtral, DeepSeek, Qwen). Drops the mean-subtraction step from LayerNorm — `y = x / sqrt(mean(x²) + eps) * weight`. Same elementwise structure on the packed buffer.
+
 ### `varlen_softmax`
 
 ```python
@@ -60,7 +69,7 @@ These are the operations that come up in every transformer block:
 
 The combination is enough to build a full transformer forward pass — see [`examples/02_no_pad_transformer.py`](../examples/02_no_pad_transformer.py).
 
-Other ops likely to land in v0.2: `varlen_rmsnorm`, `varlen_rope`, `scatter_add`/`gather` (the MoE routing primitives), `varlen_dropout`.
+Other ops likely to land in v0.2: `varlen_rope`, `scatter_add`/`gather` (the MoE routing primitives), `varlen_dropout`.
 
 ## Triton kernels
 

@@ -7,6 +7,7 @@ All notable changes to scree are recorded here. Format follows [Keep a Changelog
 ### Added
 - Comprehensive documentation under `docs/` covering concepts, API reference, bridges, kernels, architecture, benchmarks, and FAQ
 - `CONTRIBUTING.md` and `CHANGELOG.md`
+- `varlen_rmsnorm` reference kernel — the norm used by LLaMA / Mistral / Mixtral / DeepSeek / Qwen and most modern open transformers (replaces LayerNorm in nearly every post-2023 architecture)
 
 ### Changed
 - Triton `varlen_attention` kernel now uses `@triton.autotune` over a 24-config grid `(BLOCK_M, BLOCK_N, num_warps, num_stages)` — first call selects the best config, subsequent calls use the cached choice
