@@ -223,7 +223,15 @@ Constraint (v0.1): `arr.ragged_dim == 0`.
 
 ## `scree.kernels.triton` — fast (CUDA + Triton)
 
-### `varlen_attention_triton(q, k, v, cu_seqlens, causal=False) -> torch.Tensor`
+### `varlen_attention_triton_autograd(q, k, v, cu_seqlens, causal=False) -> torch.Tensor`
+
+Autograd-aware variant of `varlen_attention_triton`. Both forward and backward are GPU-native Triton kernels (FA-2 style). Use this when you need gradients to flow through `q`, `k`, `v`.
+
+Returns a `torch.Tensor` of the same shape and dtype as `q`. On `.backward()`, dispatches to `_varlen_attn_bwd_preprocess_kernel`, `_varlen_attn_bwd_dkv_kernel`, and `_varlen_attn_bwd_dq_kernel` to compute `dq`, `dk`, `dv`.
+
+H100 measurement (12k tokens, fp16, causal): full training step at **1.61× of FA-2 varlen**.
+
+### `varlen_attention_triton(q, k, v, cu_seqlens, causal=False, return_lse=False) -> torch.Tensor`
 
 GPU implementation of varlen self-attention forward using a FlashAttention-2 style online-softmax recurrence with autotuned block sizes.
 

@@ -38,6 +38,7 @@ def _varlen_attn_fwd_kernel(
     K,
     V,
     O,
+    LSE,  # output: log-sum-exp per (token, head), fp32, used by backward
     cu_seqlens,
     sm_scale,
     stride_qm,
@@ -52,6 +53,8 @@ def _varlen_attn_fwd_kernel(
     stride_om,
     stride_oh,
     stride_od,
+    stride_lse_m,
+    stride_lse_h,
     BLOCK_M: tl.constexpr,
     BLOCK_N: tl.constexpr,
     HEAD_DIM: tl.constexpr,
@@ -152,6 +155,12 @@ def _varlen_attn_fwd_kernel(
     )
     tl.store(o_ptrs, acc.to(O.dtype.element_ty), mask=q_in_range[:, None])
 
+    # Write LSE = m_i + log(l_i) per (token, head) — needed by backward.
+    # Stored as fp32 regardless of forward dtype.
+    lse = m_i + tl.log(l_i)
+    lse_ptrs = LSE + (start + q_idx) * stride_lse_m + head * stride_lse_h
+    tl.store(lse_ptrs, lse, mask=q_in_range)
+
 
 def varlen_attention_triton(
     q,
@@ -161,6 +170,7 @@ def varlen_attention_triton(
     causal: bool = False,
     block_m: int = 64,
     block_n: int = 64,
+    return_lse: bool = False,
 ):
     """Variable-length self-attention forward via Triton.
 
@@ -176,13 +186,16 @@ def varlen_attention_triton(
         Apply lower-triangular causal mask within each sequence.
     block_m, block_n : int
         Tile sizes for Q and K/V. Defaults (64, 64) produce 1.21× FA-2
-        varlen on H100 with PASS correctness. Tuning is deferred — see
-        the comment above _varlen_attn_fwd_kernel for the autotune story.
+        varlen on H100 with PASS correctness.
+    return_lse : bool
+        If True, also return the per-token log-sum-exp ``(total, n_heads)``
+        fp32 tensor. Used by the autograd wrapper to feed the backward.
 
     Returns
     -------
-    torch.Tensor
-        Same shape and dtype as ``q``.
+    torch.Tensor or (torch.Tensor, torch.Tensor)
+        ``out`` of same shape and dtype as ``q``; ``(out, lse)`` if
+        ``return_lse`` is True.
     """
     import torch
 
@@ -198,6 +211,7 @@ def varlen_attention_triton(
     n_q_blocks = triton.cdiv(max_seq, block_m)
 
     out = torch.empty_like(q)
+    lse = torch.empty((total, n_heads), dtype=torch.float32, device=q.device)
     sm_scale = 1.0 / math.sqrt(head_dim)
 
     grid = (batch, n_q_blocks, n_heads)
@@ -206,6 +220,7 @@ def varlen_attention_triton(
         k,
         v,
         out,
+        lse,
         cu_seqlens,
         sm_scale,
         q.stride(0),
@@ -220,6 +235,8 @@ def varlen_attention_triton(
         out.stride(0),
         out.stride(1),
         out.stride(2),
+        lse.stride(0),
+        lse.stride(1),
         BLOCK_M=block_m,
         BLOCK_N=block_n,
         HEAD_DIM=head_dim,
@@ -227,4 +244,6 @@ def varlen_attention_triton(
         num_warps=4,
         num_stages=2,
     )
+    if return_lse:
+        return out, lse
     return out

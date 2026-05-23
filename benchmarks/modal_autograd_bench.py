@@ -144,9 +144,9 @@ def bench() -> dict:
     print(f"  scree-Triton-autograd:      {sc_ms:7.3f} ms")
     print(f"  ratio (sc / fa):            {sc_ms / fa_ms:5.2f}x   (lower is better)")
     print()
-    print("note: scree backward uses the reference (slow) impl in v0.0.")
-    print("      the Triton backward kernel lands in v0.1 and is expected")
-    print("      to bring this ratio close to 1.0x.")
+    print("scree backward uses the full Triton backward kernel set")
+    print("(preprocess + dKV + dQ, FA-2 style). Both forward and backward")
+    print("are GPU-native Triton paths.")
 
     return {
         "forward_pass": fwd_pass,

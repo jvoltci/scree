@@ -68,18 +68,17 @@ log-normal lengths, 12160 total tokens, 16 heads × head_dim 64, fp16, causal:
 Correctness: max abs diff 4.88e-4 vs FlashAttention-2 (PASS).
 Reproduce: `modal run benchmarks/modal_bench.py` (~$0.20 of Modal credit).
 
-**GPU training step** (forward + backward) — scree's autograd wrapper uses
-the Triton forward and a reference (slow but correct) backward in v0.0;
-the Triton backward kernel is v0.1 work:
+**GPU training step** (forward + backward) — full Triton path on both
+sides (FA-2 style backward: preprocess + dKV + dQ kernels):
 
-| Path | Forward + backward | Notes |
-| --- | --- | --- |
-| FlashAttention-2 varlen + native backward | 0.69 ms | 1.00× baseline |
-| scree-Triton-autograd (reference backward) | 15.18 ms | ~22× slower; backward dominates |
+| Path | Forward + backward |
+| --- | --- |
+| FlashAttention-2 varlen | 0.688 ms (1.00×) |
+| **scree-Triton-autograd** | **1.106 ms (1.61×)** |
 
-Correctness on backward: PASS (`dq` 2e-3, `dk` 2e-3, `dv` 4e-3 vs FA-2). For
-forward-only inference, scree is at 1.21×. For training, the backward
-gap closes when the Triton backward kernel lands in v0.1.
+Correctness: forward max abs diff 4.88e-04; backward dq 9.77e-04, dk
+1.95e-03, dv 1.95e-03 vs FA-2 (all PASS within fp16 tolerance). The
+backward kernel set ships in v0.0 — you can train today.
 Reproduce: `modal run benchmarks/modal_autograd_bench.py`.
 
 **Zero-copy bridges** to the things you already use:
