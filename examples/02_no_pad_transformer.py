@@ -1,9 +1,9 @@
 """A transformer block that never pads.
 
 The full pre-norm transformer forward pass — varlen self-attention,
-varlen layernorm, feedforward, residuals — operating on scree.Arrays
-throughout. There is no ``attention_mask`` to thread through and no
-FLOPs spent on padding positions.
+varlen RMSNorm (LLaMA-style), feedforward, residuals — operating on
+scree.Arrays throughout. There is no ``attention_mask`` to thread
+through and no FLOPs spent on padding positions.
 
 Run with:
     python examples/02_no_pad_transformer.py
@@ -14,7 +14,7 @@ from __future__ import annotations
 import numpy as np
 
 import scree
-from scree.kernels.reference import varlen_attention, varlen_layernorm
+from scree.kernels.reference import varlen_attention, varlen_rmsnorm
 
 
 def gelu(x: np.ndarray) -> np.ndarray:
@@ -36,12 +36,15 @@ def transformer_block(
     W2: np.ndarray,
     n_heads: int,
 ) -> scree.Array:
-    """One pre-norm transformer block: norm → varlen attn → residual → norm → ff → residual."""
+    """One pre-norm transformer block: norm → varlen attn → residual → norm → ff → residual.
+
+    Uses RMSNorm (LLaMA / Mistral / Mixtral / DeepSeek convention).
+    """
     model_dim = x.values.shape[-1]
     head_dim = model_dim // n_heads
 
     # Attention sub-block
-    h = varlen_layernorm(x)
+    h = varlen_rmsnorm(x)
     qkv = (h.values @ Wqkv).reshape(-1, 3, n_heads, head_dim)
     q = scree.Array(values=qkv[:, 0], offsets=x.offsets)
     k = scree.Array(values=qkv[:, 1], offsets=x.offsets)
@@ -51,7 +54,7 @@ def transformer_block(
     h1 = scree.Array(values=x.values + attn_proj, offsets=x.offsets)
 
     # Feedforward sub-block
-    ff_out = feedforward(varlen_layernorm(h1), W1, W2)
+    ff_out = feedforward(varlen_rmsnorm(h1), W1, W2)
     return scree.Array(values=h1.values + ff_out.values, offsets=x.offsets)
 
 
