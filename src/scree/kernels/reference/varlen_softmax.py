@@ -7,7 +7,7 @@ separately — not across the full concatenated buffer.
 
 from __future__ import annotations
 
-from ..._core import Array, _is_torch
+from ..._core import Array, _is_mlx, _is_torch
 
 
 def varlen_softmax(arr: Array) -> Array:
@@ -19,7 +19,16 @@ def varlen_softmax(arr: Array) -> Array:
     if arr.ragged_dim != 0:
         raise NotImplementedError("varlen_softmax supports ragged_dim=0 only in v0.1")
 
-    if _is_torch(arr.values):
+    if _is_mlx(arr.values):
+        import mlx.core as mx
+
+        out_rows = []
+        for i in range(arr.batch_size):
+            s = int(arr.offsets[i])
+            e = int(arr.offsets[i + 1])
+            out_rows.append(mx.softmax(arr.values[s:e], axis=0))
+        values = mx.concatenate(out_rows, axis=0)
+    elif _is_torch(arr.values):
         import torch
 
         out_rows = []

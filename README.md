@@ -60,8 +60,8 @@ bridges.to_hf_padded(arr)      # → (hidden_states, attention_mask)
 bridges.to_torch(arr)          # numpy values → torch tensors via DLPack
 ```
 
-**One primitive, every framework** — values and offsets can be NumPy
-or PyTorch today; JAX and MLX are next.
+**One primitive, every framework** — values and offsets can be NumPy,
+PyTorch, or MLX (Apple Silicon, via Metal) today; JAX is next.
 
 ## The name
 
@@ -80,16 +80,16 @@ present. Triton kernels at FlashAttention-varlen parity ship in v0.1.
 | `pack` / `unpack` / `to_padded` / `from_padded` | ✅ |
 | Reference varlen attention / layernorm / softmax | ✅ |
 | Bridges: torch.nested, HF padded, FA cu_seqlens, DLPack | ✅ |
-| NumPy + PyTorch backends | ✅ |
+| NumPy + PyTorch + MLX backends | ✅ |
 | Triton kernels at FA-varlen parity | 🟡 next |
 | JAX backend | 🟡 next |
-| MLX backend | ⏳ later |
 
 ## Install
 
 ```bash
 pip install scree              # numpy backend
 pip install "scree[torch]"     # + PyTorch backend
+pip install "scree[mlx]"       # + MLX backend (Apple Silicon, Metal)
 ```
 
 ## Examples

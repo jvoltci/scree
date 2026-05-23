@@ -8,7 +8,7 @@ on a packed ``scree.Array`` without unpacking.
 
 from __future__ import annotations
 
-from ..._core import Array, _is_torch
+from ..._core import Array, _is_mlx, _is_torch
 
 
 def varlen_layernorm(
@@ -28,11 +28,21 @@ def varlen_layernorm(
     eps : float
         Numerical stability epsilon.
     """
-    if _is_torch(arr.values):
+    if _is_mlx(arr.values):
+        import mlx.core as mx
+
+        x = arr.values
+        mean = mx.mean(x, axis=-1, keepdims=True)
+        var = mx.var(x, axis=-1, keepdims=True)
+        y = (x - mean) / mx.sqrt(var + eps)
+        if weight is not None:
+            y = y * weight
+        if bias is not None:
+            y = y + bias
+    elif _is_torch(arr.values):
         import torch
 
         x = arr.values
-        feature_dim = x.shape[-1]
         mean = x.mean(dim=-1, keepdim=True)
         var = x.var(dim=-1, keepdim=True, unbiased=False)
         y = (x - mean) / torch.sqrt(var + eps)

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 
-from ..._core import Array, _is_torch
+from ..._core import Array, _is_mlx, _is_torch
 
 
 def varlen_attention(q: Array, k: Array, v: Array, causal: bool = False) -> Array:
@@ -30,6 +30,35 @@ def varlen_attention(q: Array, k: Array, v: Array, causal: bool = False) -> Arra
     """
     head_dim = q.values.shape[-1]
     scale = 1.0 / math.sqrt(head_dim)
+
+    if _is_mlx(q.values):
+        import mlx.core as mx
+
+        if not mx.array_equal(q.offsets, k.offsets).item() or not mx.array_equal(
+            q.offsets, v.offsets
+        ).item():
+            raise ValueError("q, k, v must have identical offsets")
+
+        out_rows = []
+        for i in range(q.batch_size):
+            s = int(q.offsets[i])
+            e = int(q.offsets[i + 1])
+            qi = q.values[s:e]  # (Li, H, D)
+            ki = k.values[s:e]
+            vi = v.values[s:e]
+            scores = mx.einsum("ihd,jhd->hij", qi, ki) * scale
+            if causal:
+                length = qi.shape[0]
+                # Build causal mask: True on upper triangle (positions to mask)
+                row_idx = mx.arange(length).reshape((length, 1))
+                col_idx = mx.arange(length).reshape((1, length))
+                cmask = col_idx > row_idx
+                scores = mx.where(cmask, mx.array(-mx.inf, dtype=scores.dtype), scores)
+            attn = mx.softmax(scores, axis=-1)
+            out_i = mx.einsum("hij,jhd->ihd", attn, vi)
+            out_rows.append(out_i)
+        values = mx.concatenate(out_rows, axis=0)
+        return Array(values=values, offsets=q.offsets, ragged_dim=0)
 
     if _is_torch(q.values):
         import torch

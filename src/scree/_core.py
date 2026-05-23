@@ -10,6 +10,10 @@ def _is_torch(x: Any) -> bool:
     return type(x).__module__.startswith("torch")
 
 
+def _is_mlx(x: Any) -> bool:
+    return type(x).__module__.startswith("mlx")
+
+
 @dataclass(frozen=True)
 class Array:
     """A packed values+offsets array with one variable-length dimension.
@@ -102,6 +106,16 @@ def pack(arrays: List[Any], ragged_dim: int = 0) -> Array:
         offsets = torch.zeros(len(arrays) + 1, dtype=torch.int32, device=first.device)
         offsets[1:] = torch.tensor(lengths, dtype=torch.int32, device=first.device).cumsum(0)
         values = torch.cat(arrays, dim=ragged_dim)
+    elif _is_mlx(first):
+        import mlx.core as mx
+
+        cumsum = 0
+        offsets_list = [0]
+        for length in lengths:
+            cumsum += length
+            offsets_list.append(cumsum)
+        offsets = mx.array(offsets_list, dtype=mx.int32)
+        values = mx.concatenate(arrays, axis=ragged_dim)
     else:
         import numpy as np
 
@@ -145,6 +159,29 @@ def to_padded(arr: Array, side: str = "right", fill_value: float = 0.0) -> Tuple
     max_len = max(lengths) if lengths else 0
     feature_shape = arr.values.shape[1:]
     batch = arr.batch_size
+
+    if _is_mlx(arr.values):
+        # MLX prefers a mutation-free construction (lazy graph).
+        import mlx.core as mx
+
+        rows_padded = []
+        rows_mask = []
+        for i, length in enumerate(lengths):
+            start = int(arr.offsets[i])
+            row = arr.values[start : start + length]
+            pad_shape = (max_len - length, *feature_shape)
+            pad = mx.full(pad_shape, fill_value, dtype=arr.values.dtype)
+            valid_mask = mx.ones((length,), dtype=mx.bool_)
+            pad_mask = mx.zeros((max_len - length,), dtype=mx.bool_)
+            if side == "right":
+                rows_padded.append(mx.concatenate([row, pad], axis=0))
+                rows_mask.append(mx.concatenate([valid_mask, pad_mask], axis=0))
+            else:
+                rows_padded.append(mx.concatenate([pad, row], axis=0))
+                rows_mask.append(mx.concatenate([pad_mask, valid_mask], axis=0))
+        padded = mx.stack(rows_padded, axis=0)
+        mask = mx.stack(rows_mask, axis=0)
+        return padded, mask
 
     if _is_torch(arr.values):
         import torch
@@ -190,6 +227,18 @@ def from_padded(padded: Any, mask: Any) -> Array:
         values = torch.cat(rows, dim=0)
         offsets = torch.zeros(batch + 1, dtype=torch.int32, device=padded.device)
         offsets[1:] = torch.tensor(lengths, dtype=torch.int32, device=padded.device).cumsum(0)
+    elif _is_mlx(padded):
+        import mlx.core as mx
+
+        lengths = [int(mask[i].sum().item()) for i in range(batch)]
+        rows = [padded[i, : lengths[i]] for i in range(batch)]
+        values = mx.concatenate(rows, axis=0)
+        cumsum = 0
+        offsets_list = [0]
+        for length in lengths:
+            cumsum += length
+            offsets_list.append(cumsum)
+        offsets = mx.array(offsets_list, dtype=mx.int32)
     else:
         import numpy as np
 
