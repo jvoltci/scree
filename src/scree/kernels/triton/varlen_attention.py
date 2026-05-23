@@ -20,6 +20,24 @@ import triton
 import triton.language as tl
 
 
+def _autotune_configs():
+    """Modest grid covering the configs that win for FA-style varlen forward on H100."""
+    configs = []
+    for block_m in (64, 128):
+        for block_n in (32, 64, 128):
+            for num_warps in (4, 8):
+                for num_stages in (2, 3):
+                    configs.append(
+                        triton.Config(
+                            {"BLOCK_M": block_m, "BLOCK_N": block_n},
+                            num_warps=num_warps,
+                            num_stages=num_stages,
+                        )
+                    )
+    return configs
+
+
+@triton.autotune(configs=_autotune_configs(), key=[])
 @triton.jit
 def _varlen_attn_fwd_kernel(
     Q,
@@ -141,15 +159,7 @@ def _varlen_attn_fwd_kernel(
     tl.store(o_ptrs, acc.to(O.dtype.element_ty), mask=q_in_range[:, None])
 
 
-def varlen_attention_triton(
-    q,
-    k,
-    v,
-    cu_seqlens,
-    causal: bool = False,
-    block_m: int = 64,
-    block_n: int = 64,
-):
+def varlen_attention_triton(q, k, v, cu_seqlens, causal: bool = False):
     """Variable-length self-attention forward via Triton.
 
     Parameters
@@ -167,6 +177,12 @@ def varlen_attention_triton(
     -------
     torch.Tensor
         Same shape and dtype as ``q``.
+
+    Notes
+    -----
+    BLOCK_M, BLOCK_N, num_warps, num_stages are selected by ``triton.autotune``
+    on the ``(HEAD_DIM, CAUSAL)`` key. The first call for a given key pays
+    a one-time tuning cost (~100ms); subsequent calls hit the on-disk cache.
     """
     import torch
 
@@ -177,16 +193,14 @@ def varlen_attention_triton(
     total, n_heads, head_dim = q.shape
     batch = cu_seqlens.numel() - 1
 
-    # The maximum sequence length sets the number of Q-blocks per program.
-    # We over-launch a little (programs past seq_end return early).
     seq_lens = cu_seqlens[1:] - cu_seqlens[:-1]
     max_seq = int(seq_lens.max().item())
-    n_q_blocks = triton.cdiv(max_seq, block_m)
 
     out = torch.empty_like(q)
     sm_scale = 1.0 / math.sqrt(head_dim)
 
-    grid = (batch, n_q_blocks, n_heads)
+    # Grid uses meta["BLOCK_M"] from the autotuned config, so it must be a callable.
+    grid = lambda meta: (batch, triton.cdiv(max_seq, meta["BLOCK_M"]), n_heads)
     _varlen_attn_fwd_kernel[grid](
         q,
         k,
@@ -206,11 +220,7 @@ def varlen_attention_triton(
         out.stride(0),
         out.stride(1),
         out.stride(2),
-        BLOCK_M=block_m,
-        BLOCK_N=block_n,
         HEAD_DIM=head_dim,
         CAUSAL=causal,
-        num_warps=4,
-        num_stages=2,
     )
     return out

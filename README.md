@@ -109,6 +109,21 @@ pip install "scree[mlx]"       # + MLX backend (Apple Silicon, Metal)
 - [`examples/01_quickstart.py`](examples/01_quickstart.py) — pack/unpack + varlen attention
 - [`examples/02_no_pad_transformer.py`](examples/02_no_pad_transformer.py) — full transformer block, zero padding
 
+## Documentation
+
+- [**Getting started**](docs/getting-started.md) — install, first program, common patterns
+- [**Concepts**](docs/concepts.md) — the mental model behind `values + offsets + ragged_dim`
+- [**API reference**](docs/api.md) — every public function and class
+- [**Bridges & migration**](docs/bridges.md) — moving from `torch.nested`, HuggingFace, FlashAttention
+- [**Kernels**](docs/kernels.md) — reference and Triton kernel design
+- [**Architecture**](docs/architecture.md) — internal layout for contributors
+- [**Benchmarks**](docs/benchmarks.md) — methodology and reproduction
+- [**FAQ**](docs/faq.md)
+
+## Contributing
+
+PRs welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow. Open a GitHub Discussion for anything beyond a small fix.
+
 ## License
 
 Apache-2.0
