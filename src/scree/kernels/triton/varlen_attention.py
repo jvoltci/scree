@@ -20,27 +20,18 @@ import triton
 import triton.language as tl
 
 
-# Autotune grid is restricted to configs we have empirically confirmed
-# safe on H100 with Triton 3.0. The wider 24-config grid (incl. num_warps=8
-# and BM=128 cases) hits a known Triton 3.0 Hopper compiler bug:
-# "SharedEncodingAttr builder when the MMAEncodingAttr is Hopper has not
-# been implemented yet". benchmarks/modal_autotune_probe.py probed these
-# three before the crash:
-#   (BM=64, BN=32, warps=4, stages=2)   0.186 ms
-#   (BM=64, BN=32, warps=4, stages=3)   0.172 ms
-#   (BM=64, BN=64, warps=4, stages=2)   0.201 ms  (from the initial 1.21x run)
-# We can widen the grid when Triton 3.1+ ships in the Modal image, or
-# when modal_autotune_probe.py (with subprocess isolation) maps the
-# full safe-set.
-def _autotune_configs():
-    return [
-        triton.Config({"BLOCK_M": 64, "BLOCK_N": 32}, num_warps=4, num_stages=2),
-        triton.Config({"BLOCK_M": 64, "BLOCK_N": 32}, num_warps=4, num_stages=3),
-        triton.Config({"BLOCK_M": 64, "BLOCK_N": 64}, num_warps=4, num_stages=2),
-    ]
-
-
-@triton.autotune(configs=_autotune_configs(), key=[])
+# Triton autotune is currently disabled. We attempted a 3-config grid
+# of empirically-safe (num_warps=4) configs on H100; the resulting
+# steady-state ran SLOWER than the hardcoded baseline (1.50x vs 1.21x of
+# FA-2). The autotune overhead appears to leak into per-iteration
+# timing for short kernels, or autotune picked a config that benchmarks
+# fast in isolation but loses in the full bench loop.
+#
+# Hardcoded config below produced 1.21x of FA-2 varlen with PASS
+# correctness on first attempt. Until we have either Triton 3.1+ in the
+# Modal image (which fixes the broader Hopper compiler bug) or
+# subprocess-isolated probing to fully map the safe-set, this is the
+# kernel scree ships.
 @triton.jit
 def _varlen_attn_fwd_kernel(
     Q,
@@ -162,7 +153,15 @@ def _varlen_attn_fwd_kernel(
     tl.store(o_ptrs, acc.to(O.dtype.element_ty), mask=q_in_range[:, None])
 
 
-def varlen_attention_triton(q, k, v, cu_seqlens, causal: bool = False):
+def varlen_attention_triton(
+    q,
+    k,
+    v,
+    cu_seqlens,
+    causal: bool = False,
+    block_m: int = 64,
+    block_n: int = 64,
+):
     """Variable-length self-attention forward via Triton.
 
     Parameters
@@ -175,18 +174,15 @@ def varlen_attention_triton(q, k, v, cu_seqlens, causal: bool = False):
         and FlashAttention's ``cu_seqlens`` convention.
     causal : bool
         Apply lower-triangular causal mask within each sequence.
+    block_m, block_n : int
+        Tile sizes for Q and K/V. Defaults (64, 64) produce 1.21× FA-2
+        varlen on H100 with PASS correctness. Tuning is deferred — see
+        the comment above _varlen_attn_fwd_kernel for the autotune story.
 
     Returns
     -------
     torch.Tensor
         Same shape and dtype as ``q``.
-
-    Notes
-    -----
-    Tile shape, num_stages selected by ``triton.autotune`` over an 11-config
-    grid (all num_warps=4 — num_warps=8 hits a Triton 3.0 Hopper compiler
-    bug). First call pays a small tuning cost (~50ms); subsequent calls
-    use the cached choice.
     """
     import torch
 
@@ -199,11 +195,12 @@ def varlen_attention_triton(q, k, v, cu_seqlens, causal: bool = False):
 
     seq_lens = cu_seqlens[1:] - cu_seqlens[:-1]
     max_seq = int(seq_lens.max().item())
+    n_q_blocks = triton.cdiv(max_seq, block_m)
 
     out = torch.empty_like(q)
     sm_scale = 1.0 / math.sqrt(head_dim)
 
-    grid = lambda meta: (batch, triton.cdiv(max_seq, meta["BLOCK_M"]), n_heads)
+    grid = (batch, n_q_blocks, n_heads)
     _varlen_attn_fwd_kernel[grid](
         q,
         k,
@@ -223,7 +220,11 @@ def varlen_attention_triton(q, k, v, cu_seqlens, causal: bool = False):
         out.stride(0),
         out.stride(1),
         out.stride(2),
+        BLOCK_M=block_m,
+        BLOCK_N=block_n,
         HEAD_DIM=head_dim,
         CAUSAL=causal,
+        num_warps=4,
+        num_stages=2,
     )
     return out

@@ -42,39 +42,41 @@ def _build_autograd_function():
             q, k, v, cu_seqlens = ctx.saved_tensors
             causal = ctx.causal
 
-            # Recompute forward through the reference path with autograd enabled,
-            # then call .backward() to populate gradients.
-            q_ref = q.detach().clone().requires_grad_(True)
-            k_ref = k.detach().clone().requires_grad_(True)
-            v_ref = v.detach().clone().requires_grad_(True)
+            # Recompute forward through the reference path under enable_grad
+            # — torch.autograd.Function.backward disables gradient tracking
+            # by default, so we have to explicitly re-enable it.
+            with torch.enable_grad():
+                q_ref = q.detach().clone().requires_grad_(True)
+                k_ref = k.detach().clone().requires_grad_(True)
+                v_ref = v.detach().clone().requires_grad_(True)
 
-            # Inline the reference math for varlen attention so we don't pull
-            # in scree._core (which would create a circular import dependency).
-            head_dim = q_ref.shape[-1]
-            scale = 1.0 / math.sqrt(head_dim)
-            batch = cu_seqlens.numel() - 1
+                # Inline the reference math for varlen attention so we don't
+                # pull in scree._core (which would create a circular import).
+                head_dim = q_ref.shape[-1]
+                scale = 1.0 / math.sqrt(head_dim)
+                batch = cu_seqlens.numel() - 1
 
-            out_rows = []
-            for i in range(batch):
-                s = int(cu_seqlens[i].item())
-                e = int(cu_seqlens[i + 1].item())
-                qi = q_ref[s:e]
-                ki = k_ref[s:e]
-                vi = v_ref[s:e]
-                scores = torch.einsum("ihd,jhd->hij", qi, ki) * scale
-                if causal:
-                    length = qi.shape[0]
-                    mask = torch.triu(
-                        torch.ones(length, length, device=qi.device, dtype=torch.bool),
-                        diagonal=1,
-                    )
-                    scores = scores.masked_fill(mask, float("-inf"))
-                attn = torch.softmax(scores.float(), dim=-1).to(qi.dtype)
-                out_rows.append(torch.einsum("hij,jhd->ihd", attn, vi))
-            out = torch.cat(out_rows, dim=0)
+                out_rows = []
+                for i in range(batch):
+                    s = int(cu_seqlens[i].item())
+                    e = int(cu_seqlens[i + 1].item())
+                    qi = q_ref[s:e]
+                    ki = k_ref[s:e]
+                    vi = v_ref[s:e]
+                    scores = torch.einsum("ihd,jhd->hij", qi, ki) * scale
+                    if causal:
+                        length = qi.shape[0]
+                        mask = torch.triu(
+                            torch.ones(length, length, device=qi.device, dtype=torch.bool),
+                            diagonal=1,
+                        )
+                        scores = scores.masked_fill(mask, float("-inf"))
+                    attn = torch.softmax(scores.float(), dim=-1).to(qi.dtype)
+                    out_rows.append(torch.einsum("hij,jhd->ihd", attn, vi))
+                out = torch.cat(out_rows, dim=0)
 
-            out.backward(grad_output)
-            # Cu_seqlens and causal don't take gradients.
+                out.backward(grad_output)
+
             return q_ref.grad, k_ref.grad, v_ref.grad, None, None
 
     return _VarlenAttentionTriton
