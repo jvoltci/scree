@@ -122,6 +122,7 @@ pip install "scree[jax]"       # + JAX backend
 - [`examples/01_quickstart.py`](examples/01_quickstart.py) — pack/unpack + varlen attention
 - [`examples/02_no_pad_transformer.py`](examples/02_no_pad_transformer.py) — full transformer block, zero padding
 - [`examples/03_train_step.py`](examples/03_train_step.py) — training step with PyTorch autograd flowing through scree (loss drops 80× in 30 steps)
+- [`examples/04_hf_compat.py`](examples/04_hf_compat.py) — HuggingFace Transformers migration recipe (drop-in via `bridges.from_hf_padded` / `to_hf_padded`)
 
 ## Documentation
 
