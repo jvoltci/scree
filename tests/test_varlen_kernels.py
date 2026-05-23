@@ -8,7 +8,12 @@ import numpy as np
 import pytest
 
 import scree
-from scree.kernels.reference import varlen_attention, varlen_layernorm, varlen_softmax
+from scree.kernels.reference import (
+    varlen_attention,
+    varlen_layernorm,
+    varlen_rmsnorm,
+    varlen_softmax,
+)
 
 
 def test_varlen_attention_matches_per_sequence_baseline_numpy():
@@ -81,6 +86,33 @@ def test_varlen_layernorm_matches_padded_baseline():
         mean = seq.mean(axis=-1, keepdims=True)
         var = seq.var(axis=-1, keepdims=True)
         baseline = (seq - mean) / np.sqrt(var + 1e-5)
+        np.testing.assert_allclose(out_rows[i], baseline, atol=1e-5)
+
+
+def test_varlen_rmsnorm_matches_padded_baseline():
+    rng = np.random.default_rng(0)
+    seqs = [rng.standard_normal((n, 8)).astype(np.float32) for n in [3, 5, 2]]
+    arr = scree.pack(seqs)
+    out = varlen_rmsnorm(arr, eps=1e-6)
+    out_rows = scree.unpack(out)
+
+    for i, seq in enumerate(seqs):
+        rms = np.sqrt((seq * seq).mean(axis=-1, keepdims=True) + 1e-6)
+        baseline = seq / rms
+        np.testing.assert_allclose(out_rows[i], baseline, atol=1e-5)
+
+
+def test_varlen_rmsnorm_with_weight():
+    rng = np.random.default_rng(0)
+    seqs = [rng.standard_normal((n, 8)).astype(np.float32) for n in [3, 5, 2]]
+    weight = rng.standard_normal((8,)).astype(np.float32)
+    arr = scree.pack(seqs)
+    out = varlen_rmsnorm(arr, weight=weight, eps=1e-6)
+    out_rows = scree.unpack(out)
+
+    for i, seq in enumerate(seqs):
+        rms = np.sqrt((seq * seq).mean(axis=-1, keepdims=True) + 1e-6)
+        baseline = (seq / rms) * weight
         np.testing.assert_allclose(out_rows[i], baseline, atol=1e-5)
 
 

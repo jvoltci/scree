@@ -10,7 +10,12 @@ import pytest
 mx = pytest.importorskip("mlx.core")  # type: ignore
 
 import scree
-from scree.kernels.reference import varlen_attention, varlen_layernorm, varlen_softmax
+from scree.kernels.reference import (
+    varlen_attention,
+    varlen_layernorm,
+    varlen_rmsnorm,
+    varlen_softmax,
+)
 
 
 def _mlx_close(actual, expected, atol=1e-5):
@@ -77,6 +82,15 @@ def test_varlen_layernorm_mlx_matches_numpy():
 
     out_np = varlen_layernorm(scree.pack(seqs), eps=1e-5)
     out_mx = varlen_layernorm(scree.pack([mx.array(s) for s in seqs]), eps=1e-5)
+    _mlx_close(out_mx.values, out_np.values, atol=1e-4)
+
+
+def test_varlen_rmsnorm_mlx_matches_numpy():
+    rng = np.random.default_rng(0)
+    seqs = [rng.standard_normal((n, 8)).astype(np.float32) for n in [3, 5, 2]]
+
+    out_np = varlen_rmsnorm(scree.pack(seqs), eps=1e-6)
+    out_mx = varlen_rmsnorm(scree.pack([mx.array(s) for s in seqs]), eps=1e-6)
     _mlx_close(out_mx.values, out_np.values, atol=1e-4)
 
 
