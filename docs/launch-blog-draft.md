@@ -1,6 +1,6 @@
 # scree: a cross-framework primitive for variable-length sequence data
 
-*Draft for v0.1.0 launch on scree.dev. Not yet published. Owner: maintainer.*
+*Draft for v0.1.0 launch (will publish at jvoltci.github.io/scree). Not yet live. Owner: maintainer.*
 
 ---
 
@@ -176,14 +176,14 @@ pip install "scree[torch]"
 Or `pip install scree` for NumPy-only, `pip install "scree[mlx]"` for Apple
 Silicon, `pip install "scree[jax]"` for JAX.
 
-Quickstart at [github.com/scree-dev/scree/blob/main/examples/01_quickstart.py](https://github.com/scree-dev/scree).
+Quickstart at [github.com/jvoltci/scree/blob/main/examples/01_quickstart.py](https://github.com/jvoltci/scree).
 Migration cookbook at [docs/bridges.md](bridges.md). API reference at
 [docs/api.md](api.md).
 
 ## How to help
 
 - Tell us if it doesn't work for your workload. Issues:
-  [github.com/scree-dev/scree/issues](https://github.com/scree-dev/scree/issues).
+  [github.com/jvoltci/scree/issues](https://github.com/jvoltci/scree/issues).
 - The biggest open question: vLLM and SGLang would both benefit from accepting
   `scree.Array` as a canonical batch format. We have draft integration PRs
   but need their teams' input. If you're on either team, let's talk.
@@ -191,7 +191,7 @@ Migration cookbook at [docs/bridges.md](bridges.md). API reference at
   or AMD ROCm — the three backends we have the least testing on.
 
 scree is Apache-2.0. Contributions follow the
-[CONTRIBUTING](https://github.com/scree-dev/scree/blob/main/CONTRIBUTING.md)
+[CONTRIBUTING](https://github.com/jvoltci/scree/blob/main/CONTRIBUTING.md)
 flow.
 
 ## Acknowledgments

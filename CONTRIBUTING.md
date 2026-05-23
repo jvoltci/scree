@@ -4,7 +4,7 @@ Thanks for considering a contribution. scree is small enough that any change mat
 
 ## Before you write code
 
-For anything beyond a typo fix, **open a GitHub Discussion first**: <https://github.com/scree-dev/scree/discussions>. One or two paragraphs is enough. Tell us:
+For anything beyond a typo fix, **open a GitHub Discussion first**: <https://github.com/jvoltci/scree/discussions>. One or two paragraphs is enough. Tell us:
 
 - What you want to change
 - Why (the problem you're hitting)
@@ -17,7 +17,7 @@ If your change is a clear bug fix with an obvious solution, skip the discussion 
 ## Setting up
 
 ```bash
-git clone https://github.com/scree-dev/scree
+git clone https://github.com/jvoltci/scree
 cd scree
 python -m venv .venv
 .venv/bin/pip install -e ".[dev,torch,mlx]"

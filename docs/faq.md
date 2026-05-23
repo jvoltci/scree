@@ -110,14 +110,14 @@ A CPU-optimized scree path (Halide-style or SIMD intrinsics) is not planned — 
 scree is at v0.0.x — the API may break between commits. v0.1 will be the first PyPI-published release. Install from source for now:
 
 ```bash
-git clone https://github.com/scree-dev/scree
+git clone https://github.com/jvoltci/scree
 cd scree
 pip install -e ".[torch]"
 ```
 
 ## Where do I file a bug?
 
-GitHub Issues: <https://github.com/scree-dev/scree/issues>
+GitHub Issues: <https://github.com/jvoltci/scree/issues>
 
 Please include:
 - Your Python version, OS, scree version

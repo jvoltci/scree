@@ -66,7 +66,7 @@ This is the gate from "pre-alpha source repo" to "library people can `pip instal
   - SGLang core (Lianmin Zheng)
   - Phil Wang (lucidrains)
 - [ ] 2–3 public endorsements lined up (quote tweet or comment on launch day)
-- [ ] Launch blog post drafted on `scree.dev`, reviewed by 2 outside readers
+- [ ] Launch blog post drafted (lives at `jvoltci.github.io/scree/launch-blog/`), reviewed by 2 outside readers
 
 ### 7. Repo hygiene
 
@@ -88,7 +88,7 @@ This is the gate from "pre-alpha source repo" to "library people can `pip instal
 Pacific time:
 
 - **05:00** — GitHub repo flips public (if not already), v0.1.0 tag pushed
-- **06:00** — Blog post published on scree.dev
+- **06:00** — Blog post live at jvoltci.github.io/scree/launch-blog/ (deployed via gh-pages on tag push)
 - **06:15** — X thread with the headline benchmark plot
 - **06:30** — Show HN submission with technical depth
 - **07:00** — Email + DM the pre-launch endorser list asking for RTs

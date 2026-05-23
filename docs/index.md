@@ -19,7 +19,7 @@ A cross-framework ragged tensor primitive for variable-length sequence data.
 
 ## Quick links
 
-- Source on GitHub: <https://github.com/scree-dev/scree>
+- Source on GitHub: <https://github.com/jvoltci/scree>
 - PyPI: <https://pypi.org/project/scree/>
-- Issues: <https://github.com/scree-dev/scree/issues>
-- Discussions: <https://github.com/scree-dev/scree/discussions>
+- Issues: <https://github.com/jvoltci/scree/issues>
+- Discussions: <https://github.com/jvoltci/scree/discussions>

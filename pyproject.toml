@@ -32,11 +32,12 @@ mlx = ["mlx>=0.20"]
 triton = ["triton>=2.3"]
 bench = ["modal>=0.60"]
 dev = ["pytest>=7", "pytest-cov", "hypothesis>=6"]
+docs = ["mkdocs-material>=9"]
 
 [project.urls]
-Homepage = "https://github.com/scree-dev/scree"
-Documentation = "https://scree.dev"
-Issues = "https://github.com/scree-dev/scree/issues"
+Homepage = "https://github.com/jvoltci/scree"
+Documentation = "https://jvoltci.github.io/scree/"
+Issues = "https://github.com/jvoltci/scree/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
