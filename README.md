@@ -46,6 +46,18 @@ kernels for attention, layernorm, softmax, and scatter/gather.
 
 Reproduce: `python benchmarks/bench_memory.py`
 
+**GPU kernel parity** with FlashAttention-2 — first-attempt unautotuned
+Triton kernel on H100, 16 seqs × log-normal lengths, 12160 total tokens,
+16 heads × head_dim 64, fp16, causal:
+
+| Kernel | Time | Ratio |
+| --- | --- | --- |
+| FlashAttention-2 varlen | 0.166 ms | 1.00x |
+| **scree-Triton varlen** | **0.201 ms** | **1.21x** |
+
+Correctness: max abs diff 4.88e-4 vs FlashAttention-2 (PASS).
+Reproduce: `modal run benchmarks/modal_bench.py` (~$0.20 of Modal credit).
+
 **Zero-copy bridges** to the things you already use:
 
 ```python

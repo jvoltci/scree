@@ -32,8 +32,16 @@ import modal
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
+# Precompiled flash-attn wheel matching torch 2.4 + CUDA 12.x + Python 3.11.
+# Avoids the slow (~10 min) source build.
+FLASH_ATTN_WHEEL = (
+    "https://github.com/Dao-AILab/flash-attention/releases/download/v2.6.3/"
+    "flash_attn-2.6.3+cu123torch2.4cxx11abiFALSE-cp311-cp311-linux_x86_64.whl"
+)
+
 image = (
     modal.Image.debian_slim(python_version="3.11")
+    .apt_install("git")  # required if flash-attn falls back to source build
     .pip_install(
         "torch==2.4.0",
         "triton==3.0.0",
@@ -42,10 +50,9 @@ image = (
         "wheel",
         "ninja",
     )
-    # flash-attn requires --no-build-isolation so it sees torch/ninja from the env
-    .pip_install("flash-attn==2.6.3", extra_options="--no-build-isolation")
-    # Mount the scree package so `import scree` works on the GPU container.
-    .add_local_dir(str(REPO_ROOT / "src" / "scree"), "/root/scree_pkg/scree", copy=True)
+    .pip_install(FLASH_ATTN_WHEEL)
+    # Mount the scree package preserving the src-layout that pyproject.toml expects.
+    .add_local_dir(str(REPO_ROOT / "src" / "scree"), "/root/scree_pkg/src/scree", copy=True)
     .add_local_file(str(REPO_ROOT / "pyproject.toml"), "/root/scree_pkg/pyproject.toml", copy=True)
     .add_local_file(str(REPO_ROOT / "README.md"), "/root/scree_pkg/README.md", copy=True)
     .run_commands("pip install -e /root/scree_pkg")
