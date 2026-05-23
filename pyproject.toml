@@ -31,7 +31,7 @@ jax = ["jax>=0.4", "jaxlib>=0.4"]
 mlx = ["mlx>=0.20"]
 triton = ["triton>=2.3"]
 bench = ["modal>=0.60"]
-dev = ["pytest>=7", "pytest-cov"]
+dev = ["pytest>=7", "pytest-cov", "hypothesis>=6"]
 
 [project.urls]
 Homepage = "https://github.com/scree-dev/scree"
