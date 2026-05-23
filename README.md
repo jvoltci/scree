@@ -46,6 +46,17 @@ kernels for attention, layernorm, softmax, and scatter/gather.
 
 Reproduce: `python benchmarks/bench_memory.py`
 
+**CPU throughput** vs a naive padded attention baseline on a real
+batch (16 seqs × log-normal lengths, 1980 real / 4464 padded tokens,
+4 heads × head_dim 32, fp32, no mask optimization):
+
+| Operation | scree | padded baseline | Speedup |
+| --- | --- | --- | --- |
+| varlen_attention | 34.7 ms | 228.3 ms | **6.6×** |
+| varlen_rmsnorm | 0.13 ms | 0.28 ms | 2.1× |
+
+Reproduce: `python benchmarks/bench_throughput.py`
+
 **GPU kernel parity** with FlashAttention-2 — first-attempt unautotuned
 Triton kernel on H100, 16 seqs × log-normal lengths, 12160 total tokens,
 16 heads × head_dim 64, fp16, causal:
