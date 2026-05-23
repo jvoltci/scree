@@ -57,29 +57,31 @@ batch (16 seqs × log-normal lengths, 1980 real / 4464 padded tokens,
 
 Reproduce: `python benchmarks/bench_throughput.py`
 
-**GPU forward** vs FlashAttention-2 — Triton kernel on H100, 16 seqs ×
-log-normal lengths, 12160 total tokens, 16 heads × head_dim 64, fp16, causal:
+**GPU forward + training step** vs FlashAttention-2 on H100. Headline
+workload: 16 seqs × log-normal lengths, 12160 total tokens, 16 heads ×
+head_dim 64, fp16, causal:
 
-| Kernel | Time | Ratio |
-| --- | --- | --- |
-| FlashAttention-2 varlen | 0.166 ms | 1.00× |
-| **scree-Triton varlen** | **0.201 ms** | **1.21×** |
-
-Correctness: max abs diff 4.88e-4 vs FlashAttention-2 (PASS).
-Reproduce: `modal run benchmarks/modal_bench.py` (~$0.20 of Modal credit).
-
-**GPU training step** (forward + backward) — full Triton path on both
-sides (FA-2 style backward: preprocess + dKV + dQ kernels):
-
-| Path | Forward + backward |
-| --- | --- |
-| FlashAttention-2 varlen | 0.688 ms (1.00×) |
-| **scree-Triton-autograd** | **1.106 ms (1.61×)** |
+| Operation | FA-2 | scree-Triton | Ratio |
+| --- | --- | --- | --- |
+| forward only | 0.165 ms | 0.216 ms | **1.30×** |
+| forward + backward (training step) | 0.688 ms | 1.106 ms | **1.61×** |
 
 Correctness: forward max abs diff 4.88e-04; backward dq 9.77e-04, dk
-1.95e-03, dv 1.95e-03 vs FA-2 (all PASS within fp16 tolerance). The
-backward kernel set ships in v0.0 — you can train today.
-Reproduce: `modal run benchmarks/modal_autograd_bench.py`.
+1.95e-03, dv 1.95e-03 vs FA-2 (all PASS within fp16 tolerance).
+Reproduce: `modal run benchmarks/modal_bench.py` + `modal run benchmarks/modal_autograd_bench.py` (~$0.40 of Modal credit total).
+
+**Across 27 shapes** (head_dim × n_heads × mean_len): scree is closer
+to FA-2 on large workloads, slower on small ones (wrapper allocation
+overhead is per-call; it amortizes as the kernel grows). See [`benchmarks/modal_multishape_sweep.py`](benchmarks/modal_multishape_sweep.py).
+
+| Workload range | Forward ratio | Training-step ratio |
+| --- | --- | --- |
+| Best (large: head_dim=64, n_heads=16, mean_len=2048) | **1.21×** | **1.45×** |
+| Median across 27 shapes | 1.95× | 2.01× |
+| Worst (toy: head_dim=32, n_heads=4, mean_len=256) | 3.53× | 1.77× |
+
+For production LLM training (head_dim ≥ 64, n_heads ≥ 8, mean_len ≥ 1024),
+expect 1.2–2.0× of FA-2.
 
 **Zero-copy bridges** to the things you already use:
 
