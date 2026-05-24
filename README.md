@@ -8,7 +8,7 @@
   <a href="https://github.com/jvoltci/scree/blob/master/LICENSE"><img src="https://img.shields.io/pypi/l/scree.svg" alt="License"></a>
   <a href="https://github.com/jvoltci/scree/actions/workflows/ci.yml"><img src="https://github.com/jvoltci/scree/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://github.com/jvoltci/scree/actions/workflows/docs.yml"><img src="https://github.com/jvoltci/scree/actions/workflows/docs.yml/badge.svg" alt="Docs"></a>
-  <a href="https://pypi.org/project/scree/"><img src="https://img.shields.io/pypi/dm/scree.svg" alt="Downloads"></a>
+  <a href="https://github.com/jvoltci/scree/stargazers"><img src="https://img.shields.io/github/stars/jvoltci/scree.svg?style=social" alt="GitHub stars"></a>
 </p>
 
 <h3 align="center">A cross-framework ragged tensor primitive for variable-length sequence data.</h3>
