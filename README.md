@@ -1,5 +1,12 @@
 # scree
 
+[![PyPI version](https://img.shields.io/pypi/v/scree.svg)](https://pypi.org/project/scree/)
+[![Python versions](https://img.shields.io/pypi/pyversions/scree.svg)](https://pypi.org/project/scree/)
+[![License](https://img.shields.io/pypi/l/scree.svg)](https://github.com/jvoltci/scree/blob/master/LICENSE)
+[![CI](https://github.com/jvoltci/scree/actions/workflows/ci.yml/badge.svg)](https://github.com/jvoltci/scree/actions/workflows/ci.yml)
+[![Docs](https://github.com/jvoltci/scree/actions/workflows/docs.yml/badge.svg)](https://github.com/jvoltci/scree/actions/workflows/docs.yml)
+[![Downloads](https://img.shields.io/pypi/dm/scree.svg)](https://pypi.org/project/scree/)
+
 A cross-framework ragged tensor primitive for variable-length sequence data.
 
 ```python
