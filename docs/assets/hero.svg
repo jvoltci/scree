@@ -161,9 +161,10 @@
   <!-- 3. Left Panel (Philosophical) -->
   <g transform="translate(0, 0)">
     <!-- Titles -->
-    <text x="45" y="92" font-size="10" font-weight="700" fill="#38BDF8" letter-spacing="1.5px">THE PHILOSOPHY</text>
+    <text x="45" y="92" font-size="10" font-weight="700" fill="#38BDF8" letter-spacing="1.5px">THE METAPHOR</text>
     <text x="45" y="114" font-size="16" font-weight="600" fill="#F1F5F9" letter-spacing="-0.2px">Fitted by Irregularity</text>
     <text x="45" y="132" font-size="11" fill="#64748B" font-style="italic">"Irregular shapes, fitted by their irregularity, not despite it."</text>
+
 
     <!-- Mountain Slope and Wireframe Schematics -->
     <g transform="translate(10, 10)">
@@ -206,7 +207,7 @@
   <!-- 4. Right Panel (Practical) -->
   <g transform="translate(0, 0)">
     <!-- Titles -->
-    <text x="445" y="92" font-size="10" font-weight="700" fill="#38BDF8" letter-spacing="1.5px">THE PRACTICALITY</text>
+    <text x="445" y="92" font-size="10" font-weight="700" fill="#38BDF8" letter-spacing="1.5px">THE REPRESENTATION</text>
     <text x="445" y="114" font-size="16" font-weight="600" fill="#F1F5F9" letter-spacing="-0.2px">Packed Attention (Zero Padding)</text>
     <text x="445" y="132" font-size="11" fill="#64748B">No pad tokens in memory, no cross-sequence leaks in attention.</text>
 
