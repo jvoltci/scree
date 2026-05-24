@@ -13,6 +13,13 @@
 
 <h3 align="center">A cross-framework ragged tensor primitive for variable-length sequence data.</h3>
 
+<p align="center">
+  <a href="https://jvoltci.github.io/scree/"><b>📚 Documentation</b></a> ·
+  <a href="https://pypi.org/project/scree/"><b>📦 PyPI</b></a> ·
+  <a href="https://github.com/jvoltci/scree/discussions"><b>💬 Discussions</b></a> ·
+  <a href="https://github.com/jvoltci/scree/issues"><b>🐛 Issues</b></a>
+</p>
+
 
 ```python
 import scree
@@ -156,14 +163,16 @@ pip install "scree[jax]"       # + JAX backend
 
 ## Documentation
 
-- [**Getting started**](docs/getting-started.md) — install, first program, common patterns
-- [**Concepts**](docs/concepts.md) — the mental model behind `values + offsets + ragged_dim`
-- [**API reference**](docs/api.md) — every public function and class
-- [**Bridges & migration**](docs/bridges.md) — moving from `torch.nested`, HuggingFace, FlashAttention
-- [**Kernels**](docs/kernels.md) — reference and Triton kernel design
-- [**Architecture**](docs/architecture.md) — internal layout for contributors
-- [**Benchmarks**](docs/benchmarks.md) — methodology and reproduction
-- [**FAQ**](docs/faq.md)
+Full rendered site at **<https://jvoltci.github.io/scree/>**.
+
+- [**Getting started**](https://jvoltci.github.io/scree/getting-started/) — install, first program, common patterns
+- [**Concepts**](https://jvoltci.github.io/scree/concepts/) — the mental model behind `values + offsets + ragged_dim`
+- [**API reference**](https://jvoltci.github.io/scree/api/) — every public function and class
+- [**Bridges & migration**](https://jvoltci.github.io/scree/bridges/) — moving from `torch.nested`, HuggingFace, FlashAttention
+- [**Kernels**](https://jvoltci.github.io/scree/kernels/) — reference and Triton kernel design
+- [**Architecture**](https://jvoltci.github.io/scree/architecture/) — internal layout for contributors
+- [**Benchmarks**](https://jvoltci.github.io/scree/benchmarks/) — methodology and reproduction
+- [**FAQ**](https://jvoltci.github.io/scree/faq/)
 
 ## Contributing
 
