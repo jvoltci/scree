@@ -27,7 +27,7 @@ All notable changes to scree are recorded here. Format follows [Keep a Changelog
 - **Multi-shape benchmark sweep.** `benchmarks/modal_multishape_sweep.py` characterizes scree-Triton vs FA-2 across 27 shapes (head_dim × n_heads × mean_len = 3 × 3 × 3). Median forward ratio 1.95×, median training-step ratio 2.01×. **scree is closer to parity on large workloads**, slower on toy ones because wrapper allocation overhead is per-call. Best case: 1.21× forward / 1.45× training-step at (head_dim=64, n_heads=16, mean_len=2048).
 - **GitHub Pages docs deployment.** `mkdocs.yml` + `.github/workflows/docs.yml` auto-deploy the `docs/` tree to `jvoltci.github.io/scree` on every push to main. Material theme, navigation matching the docs structure, light/dark palette, code-copy buttons.
 - **RELEASE.md.** v0.1.0 release-readiness checklist covering code, API, docs, benchmarks, packaging, pre-launch credibility, repo hygiene, release artifacts, plus a launch-day sequence and hotfix flow.
-- **v0.1 launch blog draft.** `docs/launch-blog-draft.md` — narrative-shaped post ready for review before publishing.
+- **v0.1 launch blog draft** — written and reviewed pre-launch (kept off the public repo until the launch is live).
 - **Buffer-reuse on `varlen_attention_triton`** — `out=None, lse_buffer=None` kwargs let users skip the ~0.05 ms per-call allocation in hot loops.
 - **Triton RMSNorm + LayerNorm kernels** (`varlen_rmsnorm_triton`, `varlen_layernorm_triton`). H100, fp16, 12160 × 4096:
   - RMSNorm: **13.97×** speedup vs PyTorch reference (no native), PASS correctness

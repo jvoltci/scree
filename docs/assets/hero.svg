@@ -1,0 +1,338 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 380" width="100%" height="100%">
+  <defs>
+    <!-- Fonts -->
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap');
+      
+      text {
+        font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      .mono {
+        font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+      }
+      
+      /* Base animations */
+      .scree-block {
+        opacity: 0;
+        transform-box: fill-box;
+        transform-origin: center;
+      }
+
+      .teal-block {
+        animation: slide-teal 9s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+      }
+
+      .purple-block {
+        animation: slide-purple 9s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+      }
+
+      .amber-block {
+        animation: slide-amber 9s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+      }
+
+      @keyframes slide-teal {
+        0% { transform: translate(-145px, -95px); opacity: 0; }
+        4% { opacity: 1; }
+        30% { transform: translate(0px, 0px); opacity: 1; }
+        80% { opacity: 1; }
+        88% { opacity: 0; transform: translate(0px, 0px); }
+        100% { opacity: 0; transform: translate(-145px, -95px); }
+      }
+
+      @keyframes slide-purple {
+        0% { opacity: 0; transform: translate(-225px, -95px); }
+        25% { opacity: 0; transform: translate(-225px, -95px); }
+        29% { opacity: 1; }
+        55% { transform: translate(0px, 0px); opacity: 1; }
+        80% { opacity: 1; }
+        88% { opacity: 0; transform: translate(0px, 0px); }
+        100% { opacity: 0; transform: translate(-225px, -95px); }
+      }
+
+      @keyframes slide-amber {
+        0% { opacity: 0; transform: translate(-175px, -70px); }
+        50% { opacity: 0; transform: translate(-175px, -70px); }
+        54% { opacity: 1; }
+        75% { transform: translate(0px, 0px); opacity: 1; }
+        80% { opacity: 1; }
+        88% { opacity: 0; transform: translate(0px, 0px); }
+        100% { opacity: 0; transform: translate(-175px, -70px); }
+      }
+
+      /* Attention Arc Pulse */
+      .attention-arc {
+        stroke-dasharray: 6 24;
+        animation: pulse-attention 3s linear infinite;
+      }
+      
+      @keyframes pulse-attention {
+        0% { stroke-dashoffset: 0; }
+        100% { stroke-dashoffset: -30; }
+      }
+
+      /* Subtle gradient pulses */
+      .pulse-glow {
+        animation: pulse-opacity 4s ease-in-out infinite alternate;
+      }
+      @keyframes pulse-opacity {
+        0% { opacity: 0.15; }
+        100% { opacity: 0.35; }
+      }
+    </style>
+
+    <!-- Gradients -->
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#050814" />
+      <stop offset="100%" stop-color="#0B1120" />
+    </linearGradient>
+
+    <linearGradient id="border-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1E293B" />
+      <stop offset="30%" stop-color="#334155" />
+      <stop offset="50%" stop-color="#3B82F6" stop-opacity="0.8" />
+      <stop offset="70%" stop-color="#334155" />
+      <stop offset="100%" stop-color="#1E293B" />
+    </linearGradient>
+
+    <linearGradient id="teal-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00F2FE" />
+      <stop offset="100%" stop-color="#4FACFE" />
+    </linearGradient>
+
+    <linearGradient id="amber-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FAD961" />
+      <stop offset="100%" stop-color="#F76B1C" />
+    </linearGradient>
+
+    <linearGradient id="purple-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#B15CFF" />
+      <stop offset="100%" stop-color="#E33CFF" />
+    </linearGradient>
+
+    <linearGradient id="pad-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#101726" />
+      <stop offset="100%" stop-color="#1B2538" />
+    </linearGradient>
+
+    <!-- Glow Filters -->
+    <filter id="glow-teal" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="3.5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <filter id="glow-amber" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="3.5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <filter id="glow-purple" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="3.5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    
+    <filter id="blur-bg" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="40" />
+    </filter>
+
+    <!-- Dot Pattern -->
+    <pattern id="dot-grid" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1" fill="#334155" opacity="0.3" />
+    </pattern>
+  </defs>
+
+  <!-- 1. Background Card & Grid -->
+  <rect width="848" height="378" x="1" y="1" rx="16" fill="url(#bg-gradient)" stroke="url(#border-gradient)" stroke-width="1.5" />
+  <rect width="848" height="378" x="1" y="1" rx="16" fill="url(#dot-grid)" />
+
+  <!-- Premium Ambient Glows -->
+  <circle cx="200" cy="220" r="100" fill="#00F2FE" opacity="0.05" filter="url(#blur-bg)" class="pulse-glow" />
+  <circle cx="560" cy="220" r="120" fill="#B15CFF" opacity="0.04" filter="url(#blur-bg)" class="pulse-glow" />
+
+  <!-- 2. Header Area -->
+  <g transform="translate(0, 0)">
+    <!-- Logo -->
+    <text x="45" y="44" font-size="23" font-weight="700" fill="#F8FAFC" letter-spacing="-0.5px">scree</text>
+    <circle cx="106" cy="34" r="3.5" fill="#00F2FE" filter="url(#glow-teal)" />
+    
+    <!-- Tagline separator and text -->
+    <line x1="124" y1="26" x2="124" y2="42" stroke="#334155" stroke-width="1" />
+    <text x="140" y="38" font-size="11.5" fill="#64748B" font-weight="400" letter-spacing="0.3px" class="mono">ragged tensor primitive for variable-length sequence data</text>
+  </g>
+
+  <!-- 3. Left Panel (Philosophical) -->
+  <g transform="translate(0, 0)">
+    <!-- Titles -->
+    <text x="45" y="92" font-size="10" font-weight="700" fill="#38BDF8" letter-spacing="1.5px">THE PHILOSOPHY</text>
+    <text x="45" y="114" font-size="16" font-weight="600" fill="#F1F5F9" letter-spacing="-0.2px">Fitted by Irregularity</text>
+    <text x="45" y="132" font-size="11" fill="#64748B" font-style="italic">"Irregular shapes, fitted by their irregularity, not despite it."</text>
+
+    <!-- Mountain Slope and Wireframe Schematics -->
+    <g transform="translate(10, 10)">
+      <!-- Horizontal Base -->
+      <line x1="35" y1="285" x2="345" y2="285" stroke="#1E293B" stroke-width="1.2" />
+      
+      <!-- Struts / Grid projection lines -->
+      <line x1="75" y1="160" x2="75" y2="285" stroke="#1E293B" stroke-width="1" stroke-dasharray="3 3" />
+      <line x1="135" y1="210" x2="135" y2="285" stroke="#1E293B" stroke-width="1" stroke-dasharray="3 3" />
+      <line x1="195" y1="250" x2="195" y2="285" stroke="#1E293B" stroke-width="1" stroke-dasharray="3 3" />
+      <line x1="275" y1="250" x2="275" y2="285" stroke="#1E293B" stroke-width="1" stroke-dasharray="3 3" />
+
+      <!-- The Slope Path -->
+      <path d="M 35,125 L 175,245 L 345,245" stroke="#334155" stroke-width="1.8" fill="none" stroke-linecap="round" />
+      
+      <!-- Static Pile Shadows / Indicators -->
+      <rect x="250" y="220" width="90" height="23" rx="4" fill="#0A0F1D" stroke="#1E293B" stroke-width="1" stroke-dasharray="2 2" opacity="0.4" />
+      <rect x="170" y="220" width="76" height="23" rx="4" fill="#0A0F1D" stroke="#1E293B" stroke-width="1" stroke-dasharray="2 2" opacity="0.4" />
+      <rect x="200" y="195" width="56" height="23" rx="4" fill="#0A0F1D" stroke="#1E293B" stroke-width="1" stroke-dasharray="2 2" opacity="0.4" />
+
+      <!-- Interlocking Falling Rocks (Animated!) -->
+      <!-- Purple rock (Long) -->
+      <rect x="250" y="220" width="90" height="23" rx="4" fill="url(#purple-grad)" class="scree-block purple-block" />
+      
+      <!-- Teal rock (Medium) -->
+      <rect x="170" y="220" width="76" height="23" rx="4" fill="url(#teal-grad)" class="scree-block teal-block" />
+      
+      <!-- Amber rock (Short - stacked on top) -->
+      <rect x="200" y="195" width="56" height="23" rx="4" fill="url(#amber-grad)" class="scree-block amber-block" />
+      
+      <!-- Tiny accent labels -->
+      <text x="35" y="115" font-size="9" fill="#475569" class="mono">SLOPE</text>
+      <text x="300" y="275" font-size="9" fill="#475569" class="mono" text-anchor="middle">SCREE PILE</text>
+    </g>
+  </g>
+
+  <!-- Middle Divider Line -->
+  <line x1="415" y1="80" x2="415" y2="330" stroke="#1E293B" stroke-width="1.2" stroke-dasharray="3 3" />
+
+  <!-- 4. Right Panel (Practical) -->
+  <g transform="translate(0, 0)">
+    <!-- Titles -->
+    <text x="445" y="92" font-size="10" font-weight="700" fill="#38BDF8" letter-spacing="1.5px">THE PRACTICALITY</text>
+    <text x="445" y="114" font-size="16" font-weight="600" fill="#F1F5F9" letter-spacing="-0.2px">Packed Attention (Zero Padding)</text>
+    <text x="445" y="132" font-size="11" fill="#64748B">No pad tokens in memory, no cross-sequence leaks in attention.</text>
+
+    <!-- SECTION A: Padded Batch -->
+    <g transform="translate(5, 5)">
+      <text x="440" y="152" font-size="9.5" font-weight="600" fill="#64748B" letter-spacing="0.5px">CONVENTIONAL PADDED BATCH (WASTED FLOPs)</text>
+      
+      <!-- Grid Row 1 (Teal, 4 valid, 3 pads) -->
+      <g transform="translate(440, 160)">
+        <!-- Valid -->
+        <rect x="0" y="0" width="14" height="14" rx="2" fill="url(#teal-grad)" opacity="0.3" />
+        <rect x="18" y="0" width="14" height="14" rx="2" fill="url(#teal-grad)" opacity="0.3" />
+        <rect x="36" y="0" width="14" height="14" rx="2" fill="url(#teal-grad)" opacity="0.3" />
+        <rect x="54" y="0" width="14" height="14" rx="2" fill="url(#teal-grad)" opacity="0.3" />
+        <!-- Pads -->
+        <g opacity="0.25">
+          <rect x="72" y="0" width="14" height="14" rx="2" fill="none" stroke="#64748B" stroke-width="1" stroke-dasharray="2 2" />
+          <line x1="72" y1="14" x2="86" y2="0" stroke="#EF4444" stroke-width="0.8" />
+          <rect x="90" y="0" width="14" height="14" rx="2" fill="none" stroke="#64748B" stroke-width="1" stroke-dasharray="2 2" />
+          <line x1="90" y1="14" x2="104" y2="0" stroke="#EF4444" stroke-width="0.8" />
+          <rect x="108" y="0" width="14" height="14" rx="2" fill="none" stroke="#64748B" stroke-width="1" stroke-dasharray="2 2" />
+          <line x1="108" y1="14" x2="122" y2="0" stroke="#EF4444" stroke-width="0.8" />
+        </g>
+      </g>
+
+      <!-- Grid Row 2 (Amber, 2 valid, 5 pads) -->
+      <g transform="translate(440, 178)">
+        <!-- Valid -->
+        <rect x="0" y="0" width="14" height="14" rx="2" fill="url(#amber-grad)" opacity="0.3" />
+        <rect x="18" y="0" width="14" height="14" rx="2" fill="url(#amber-grad)" opacity="0.3" />
+        <!-- Pads -->
+        <g opacity="0.25">
+          <rect x="36" y="0" width="14" height="14" rx="2" fill="none" stroke="#64748B" stroke-width="1" stroke-dasharray="2 2" />
+          <line x1="36" y1="14" x2="50" y2="0" stroke="#EF4444" stroke-width="0.8" />
+          <rect x="54" y="0" width="14" height="14" rx="2" fill="none" stroke="#64748B" stroke-width="1" stroke-dasharray="2 2" />
+          <line x1="54" y1="14" x2="68" y2="0" stroke="#EF4444" stroke-width="0.8" />
+          <rect x="72" y="0" width="14" height="14" rx="2" fill="none" stroke="#64748B" stroke-width="1" stroke-dasharray="2 2" />
+          <line x1="72" y1="14" x2="86" y2="0" stroke="#EF4444" stroke-width="0.8" />
+          <rect x="90" y="0" width="14" height="14" rx="2" fill="none" stroke="#64748B" stroke-width="1" stroke-dasharray="2 2" />
+          <line x1="90" y1="14" x2="104" y2="0" stroke="#EF4444" stroke-width="0.8" />
+          <rect x="108" y="0" width="14" height="14" rx="2" fill="none" stroke="#64748B" stroke-width="1" stroke-dasharray="2 2" />
+          <line x1="108" y1="14" x2="122" y2="0" stroke="#EF4444" stroke-width="0.8" />
+        </g>
+      </g>
+
+      <!-- Grid Row 3 (Purple, 7 valid, 0 pads) -->
+      <g transform="translate(440, 196)">
+        <rect x="0" y="0" width="14" height="14" rx="2" fill="url(#purple-grad)" opacity="0.3" />
+        <rect x="18" y="0" width="14" height="14" rx="2" fill="url(#purple-grad)" opacity="0.3" />
+        <rect x="36" y="0" width="14" height="14" rx="2" fill="url(#purple-grad)" opacity="0.3" />
+        <rect x="54" y="0" width="14" height="14" rx="2" fill="url(#purple-grad)" opacity="0.3" />
+        <rect x="72" y="0" width="14" height="14" rx="2" fill="url(#purple-grad)" opacity="0.3" />
+        <rect x="90" y="0" width="14" height="14" rx="2" fill="url(#purple-grad)" opacity="0.3" />
+        <rect x="108" y="0" width="14" height="14" rx="2" fill="url(#purple-grad)" opacity="0.3" />
+      </g>
+
+      <!-- Wasted indicator -->
+      <text x="580" y="185" font-size="10" font-weight="600" fill="#EF4444" class="mono">⚡ 8 padding tokens wasted (38%)</text>
+    </g>
+
+    <!-- SECTION B: Scree Packed Array -->
+    <g transform="translate(5, 5)">
+      <text x="440" y="238" font-size="9.5" font-weight="600" fill="#64748B" letter-spacing="0.5px">SCREE FLAT PACKED ARRAY (ZERO WASTE)</text>
+
+      <!-- Outer array frame border -->
+      <rect x="437" y="247" width="238" height="20" rx="4" fill="none" stroke="#1E293B" stroke-width="1.2" />
+
+      <!-- Token blocks: values (13 elements flat) -->
+      <g id="packed-tokens">
+        <!-- Teal Sequence (4) -->
+        <rect x="440" y="250" width="14" height="14" rx="2" fill="url(#teal-grad)" />
+        <rect x="458" y="250" width="14" height="14" rx="2" fill="url(#teal-grad)" />
+        <rect x="476" y="250" width="14" height="14" rx="2" fill="url(#teal-grad)" />
+        <rect x="494" y="250" width="14" height="14" rx="2" fill="url(#teal-grad)" />
+
+        <!-- Amber Sequence (2) -->
+        <rect x="512" y="250" width="14" height="14" rx="2" fill="url(#amber-grad)" />
+        <rect x="530" y="250" width="14" height="14" rx="2" fill="url(#amber-grad)" />
+
+        <!-- Purple Sequence (7) -->
+        <rect x="548" y="250" width="14" height="14" rx="2" fill="url(#purple-grad)" />
+        <rect x="566" y="250" width="14" height="14" rx="2" fill="url(#purple-grad)" />
+        <rect x="584" y="250" width="14" height="14" rx="2" fill="url(#purple-grad)" />
+        <rect x="602" y="250" width="14" height="14" rx="2" fill="url(#purple-grad)" />
+        <rect x="620" y="250" width="14" height="14" rx="2" fill="url(#purple-grad)" />
+        <rect x="638" y="250" width="14" height="14" rx="2" fill="url(#purple-grad)" />
+        <rect x="656" y="250" width="14" height="14" rx="2" fill="url(#purple-grad)" />
+      </g>
+      
+      <!-- Label "values" -->
+      <text x="684" y="261" font-size="10" font-weight="500" fill="#94A3B8" class="mono">values</text>
+
+      <!-- Offsets scale & ticks -->
+      <g transform="translate(0, 0)">
+        <!-- Horizontal Ruler Line -->
+        <line x1="438" y1="285" x2="672" y2="285" stroke="#475569" stroke-width="1.2" />
+
+        <!-- Ticks -->
+        <line x1="438" y1="282" x2="438" y2="288" stroke="#475569" stroke-width="1.2" />
+        <line x1="510" y1="282" x2="510" y2="288" stroke="#475569" stroke-width="1.2" />
+        <line x1="546" y1="282" x2="546" y2="288" stroke="#475569" stroke-width="1.2" />
+        <line x1="672" y1="282" x2="672" y2="288" stroke="#475569" stroke-width="1.2" />
+
+        <!-- Index Labels -->
+        <text x="438" y="300" font-size="9" fill="#94A3B8" class="mono" text-anchor="middle">0</text>
+        <text x="510" y="300" font-size="9" fill="#94A3B8" class="mono" text-anchor="middle">4</text>
+        <text x="546" y="300" font-size="9" fill="#94A3B8" class="mono" text-anchor="middle">6</text>
+        <text x="672" y="300" font-size="9" fill="#94A3B8" class="mono" text-anchor="middle">13</text>
+
+        <!-- Label "offsets" -->
+        <text x="684" y="297" font-size="10.5" font-weight="600" fill="#38BDF8" class="mono">offsets = [0, 4, 6, 13]</text>
+      </g>
+
+      <!-- Varlen Attention Arcs (Pulsing!) -->
+      <g>
+        <!-- Teal Attention Scope -->
+        <path d="M 447,247 Q 473,222 499,247" fill="none" stroke="url(#teal-grad)" stroke-width="1.5" opacity="0.8" filter="url(#glow-teal)" class="attention-arc" />
+        
+        <!-- Amber Attention Scope -->
+        <path d="M 519,247 Q 528,236 537,247" fill="none" stroke="url(#amber-grad)" stroke-width="1.5" opacity="0.8" filter="url(#glow-amber)" class="attention-arc" />
+        
+        <!-- Purple Attention Scope -->
+        <path d="M 555,247 Q 609,202 663,247" fill="none" stroke="url(#purple-grad)" stroke-width="1.5" opacity="0.8" filter="url(#glow-purple)" class="attention-arc" />
+        
+        <text x="684" y="222" font-size="9.5" font-weight="600" fill="#4FACFE" class="mono">varlen_attention</text>
+      </g>
+    </g>
+  </g>
+</svg>

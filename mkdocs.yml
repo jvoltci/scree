@@ -48,7 +48,6 @@ nav:
   - Benchmarks: benchmarks.md
   - Architecture: architecture.md
   - FAQ: faq.md
-  - Launch blog (draft): launch-blog-draft.md
 
 markdown_extensions:
   - admonition

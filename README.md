@@ -1,13 +1,18 @@
-# scree
+<p align="center">
+  <img src="docs/assets/hero.svg" alt="scree hero banner" width="100%">
+</p>
 
-[![PyPI version](https://img.shields.io/pypi/v/scree.svg)](https://pypi.org/project/scree/)
-[![Python versions](https://img.shields.io/pypi/pyversions/scree.svg)](https://pypi.org/project/scree/)
-[![License](https://img.shields.io/pypi/l/scree.svg)](https://github.com/jvoltci/scree/blob/master/LICENSE)
-[![CI](https://github.com/jvoltci/scree/actions/workflows/ci.yml/badge.svg)](https://github.com/jvoltci/scree/actions/workflows/ci.yml)
-[![Docs](https://github.com/jvoltci/scree/actions/workflows/docs.yml/badge.svg)](https://github.com/jvoltci/scree/actions/workflows/docs.yml)
-[![Downloads](https://img.shields.io/pypi/dm/scree.svg)](https://pypi.org/project/scree/)
+<p align="center">
+  <a href="https://pypi.org/project/scree/"><img src="https://img.shields.io/pypi/v/scree.svg" alt="PyPI version"></a>
+  <a href="https://pypi.org/project/scree/"><img src="https://img.shields.io/pypi/pyversions/scree.svg" alt="Python versions"></a>
+  <a href="https://github.com/jvoltci/scree/blob/master/LICENSE"><img src="https://img.shields.io/pypi/l/scree.svg" alt="License"></a>
+  <a href="https://github.com/jvoltci/scree/actions/workflows/ci.yml"><img src="https://github.com/jvoltci/scree/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/jvoltci/scree/actions/workflows/docs.yml"><img src="https://github.com/jvoltci/scree/actions/workflows/docs.yml/badge.svg" alt="Docs"></a>
+  <a href="https://pypi.org/project/scree/"><img src="https://img.shields.io/pypi/dm/scree.svg" alt="Downloads"></a>
+</p>
 
-A cross-framework ragged tensor primitive for variable-length sequence data.
+<h3 align="center">A cross-framework ragged tensor primitive for variable-length sequence data.</h3>
+
 
 ```python
 import scree
@@ -116,8 +121,9 @@ irregular shapes, fitted by their irregularity, not despite it.
 
 ## Status
 
-v0.0.1, pre-alpha. The reference (slow but correct) Python kernels are
-present. Triton kernels at FlashAttention-varlen parity ship in v0.1.
+v0.0.1 on PyPI. Reference Python kernels for all four backends and a
+full FA-2-style Triton kernel set (forward + backward + RMSNorm +
+LayerNorm) ship today. See the table below.
 
 | Component | Status |
 | --- | --- |
