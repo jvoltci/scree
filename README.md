@@ -136,7 +136,6 @@ LayerNorm) ship today. See the table below.
 | Triton `varlen_attention` backward (FA-2 style: preprocess + dKV + dQ) | ✅ 1.61× of FA-2 (full training step) |
 | Triton `varlen_rmsnorm` (H100) | ✅ 13.97× of PyTorch reference |
 | Triton `varlen_layernorm` (H100) | ✅ 1.31× of `torch.nn.functional.layer_norm` |
-| Triton autotune (Triton 3.1+ needed for full safe-set) | 🟡 deferred |
 
 ## Install
 
