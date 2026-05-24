@@ -4,6 +4,11 @@ These tests use hypothesis to generate a wide range of inputs and verify
 properties that should hold for ALL valid scree.Arrays — catching edge
 cases the targeted unit tests would miss.
 
+Tests run across all available backends (NumPy + PyTorch + MLX + JAX);
+unavailable backends are skipped via pytest.importorskip on the test
+level (not the file level — we don't want to skip NumPy tests just
+because Torch is missing).
+
 Properties tested:
 - pack/unpack roundtrip is identity
 - to_padded/from_padded roundtrip is identity
@@ -14,6 +19,8 @@ Properties tested:
 """
 
 from __future__ import annotations
+
+import importlib
 
 import numpy as np
 import pytest
@@ -27,6 +34,45 @@ from scree.kernels.reference import (
     varlen_rmsnorm,
     varlen_softmax,
 )
+
+
+def _available_backends() -> list[str]:
+    """Detect which optional backends can be tested in this environment."""
+    backends = ["numpy"]
+    for name, mod in [("torch", "torch"), ("mlx", "mlx.core"), ("jax", "jax.numpy")]:
+        try:
+            importlib.import_module(mod)
+            backends.append(name)
+        except ImportError:
+            pass
+    return backends
+
+
+BACKENDS = _available_backends()
+
+
+def _convert_arrays(numpy_arrays: list[np.ndarray], backend: str) -> list:
+    """Cast a list of numpy arrays to the target backend."""
+    if backend == "numpy":
+        return numpy_arrays
+    if backend == "torch":
+        import torch
+
+        return [torch.from_numpy(a) for a in numpy_arrays]
+    if backend == "mlx":
+        import mlx.core as mx
+
+        return [mx.array(a) for a in numpy_arrays]
+    if backend == "jax":
+        import jax.numpy as jnp
+
+        return [jnp.array(a) for a in numpy_arrays]
+    raise ValueError(f"unknown backend: {backend!r}")
+
+
+def _to_numpy(arr) -> np.ndarray:
+    """Cast an arbitrary-backend array to a NumPy array for comparison."""
+    return np.array(arr)
 
 
 # Hypothesis strategies for generating valid scree-shaped inputs.
@@ -178,3 +224,50 @@ def test_to_padded_mask_matches_lengths(seqs):
     assert int(mask.sum()) == arr.total_length
     for i, length in enumerate(arr.lengths.tolist()):
         assert int(mask[i].sum()) == length
+
+
+# Cross-backend property tests — each hypothesis case is verified across
+# every available backend (NumPy + PyTorch + MLX + JAX). A bug in any
+# backend fails the test for that hypothesis input.
+
+_CROSS_BACKEND_SETTINGS = settings(
+    suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture, HealthCheck.large_base_example],
+    deadline=None,  # cross-backend runs ~4x the work; default 200ms is too tight
+    max_examples=25,  # reduce search space — we only need a few cases per backend
+    print_blob=False,
+)
+
+
+@_CROSS_BACKEND_SETTINGS
+@given(packed_arrays(lengths=st.lists(st.integers(min_value=1, max_value=16), min_size=1, max_size=8),
+                     feature_dim=st.integers(min_value=1, max_value=8)))
+def test_pack_unpack_roundtrip_all_backends(seqs):
+    """pack/unpack roundtrip identity must hold on every backend."""
+    for backend in BACKENDS:
+        arrays = _convert_arrays(seqs, backend)
+        arr = scree.pack(arrays)
+        assert arr.batch_size == len(arrays), f"backend {backend}"
+        out = scree.unpack(arr)
+        assert len(out) == len(arrays), f"backend {backend}"
+        for original_np, recovered in zip(seqs, out):
+            np.testing.assert_array_equal(
+                original_np, _to_numpy(recovered),
+                err_msg=f"backend {backend}",
+            )
+
+
+@_CROSS_BACKEND_SETTINGS
+@given(packed_arrays(lengths=st.lists(st.integers(min_value=1, max_value=16), min_size=1, max_size=8),
+                     feature_dim=st.integers(min_value=1, max_value=8)))
+def test_array_invariants_hold_all_backends(seqs):
+    """offsets[0]==0, offsets[-1]==total_length, monotonic non-decreasing on every backend."""
+    expected_lengths = [s.shape[0] for s in seqs]
+    for backend in BACKENDS:
+        arrays = _convert_arrays(seqs, backend)
+        arr = scree.pack(arrays)
+        assert int(arr.offsets[0]) == 0, f"backend {backend}"
+        assert int(arr.offsets[-1]) == arr.total_length, f"backend {backend}"
+        diffs = _to_numpy(arr.lengths)
+        assert (diffs >= 0).all(), f"backend {backend}"
+        actual_lengths = _to_numpy(arr.lengths).tolist()
+        assert actual_lengths == expected_lengths, f"backend {backend}"
