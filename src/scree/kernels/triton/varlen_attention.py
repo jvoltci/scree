@@ -171,6 +171,8 @@ def varlen_attention_triton(
     block_m: int = 64,
     block_n: int = 64,
     return_lse: bool = False,
+    out=None,
+    lse_buffer=None,
 ):
     """Variable-length self-attention forward via Triton.
 
@@ -190,6 +192,15 @@ def varlen_attention_triton(
     return_lse : bool
         If True, also return the per-token log-sum-exp ``(total, n_heads)``
         fp32 tensor. Used by the autograd wrapper to feed the backward.
+    out : torch.Tensor, optional
+        Pre-allocated output buffer of shape ``(total_tokens, n_heads, head_dim)``
+        and matching dtype/device. If provided, no `torch.empty_like` allocation
+        happens in the hot path — useful for short-kernel workloads where the
+        ~0.05 ms allocation per call dominates. If None, a fresh buffer is allocated.
+    lse_buffer : torch.Tensor, optional
+        Pre-allocated LSE buffer of shape ``(total_tokens, n_heads)`` fp32 on the
+        same device. Same purpose as ``out`` for the LSE tensor. Allocated fresh
+        if None.
 
     Returns
     -------
@@ -210,8 +221,16 @@ def varlen_attention_triton(
     max_seq = int(seq_lens.max().item())
     n_q_blocks = triton.cdiv(max_seq, block_m)
 
-    out = torch.empty_like(q)
-    lse = torch.empty((total, n_heads), dtype=torch.float32, device=q.device)
+    if out is None:
+        out = torch.empty_like(q)
+    else:
+        assert out.shape == q.shape and out.dtype == q.dtype and out.device == q.device
+    if lse_buffer is None:
+        lse = torch.empty((total, n_heads), dtype=torch.float32, device=q.device)
+    else:
+        assert lse_buffer.shape == (total, n_heads)
+        assert lse_buffer.dtype == torch.float32 and lse_buffer.device == q.device
+        lse = lse_buffer
     sm_scale = 1.0 / math.sqrt(head_dim)
 
     grid = (batch, n_q_blocks, n_heads)

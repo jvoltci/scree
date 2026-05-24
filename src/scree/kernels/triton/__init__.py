@@ -17,10 +17,14 @@ except ImportError:
 if TRITON_AVAILABLE:
     from ._autograd import varlen_attention_triton_autograd
     from .varlen_attention import varlen_attention_triton
+    from .varlen_layernorm import varlen_layernorm_triton
+    from .varlen_rmsnorm import varlen_rmsnorm_triton
 
     __all__ = [
         "varlen_attention_triton",
         "varlen_attention_triton_autograd",
+        "varlen_layernorm_triton",
+        "varlen_rmsnorm_triton",
         "TRITON_AVAILABLE",
     ]
 else:

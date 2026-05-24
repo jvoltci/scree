@@ -28,10 +28,19 @@ All notable changes to scree are recorded here. Format follows [Keep a Changelog
 - **GitHub Pages docs deployment.** `mkdocs.yml` + `.github/workflows/docs.yml` auto-deploy the `docs/` tree to `jvoltci.github.io/scree` on every push to main. Material theme, navigation matching the docs structure, light/dark palette, code-copy buttons.
 - **RELEASE.md.** v0.1.0 release-readiness checklist covering code, API, docs, benchmarks, packaging, pre-launch credibility, repo hygiene, release artifacts, plus a launch-day sequence and hotfix flow.
 - **v0.1 launch blog draft.** `docs/launch-blog-draft.md` — narrative-shaped post ready for review before publishing.
+- **Buffer-reuse on `varlen_attention_triton`** — `out=None, lse_buffer=None` kwargs let users skip the ~0.05 ms per-call allocation in hot loops.
+- **Triton RMSNorm + LayerNorm kernels** (`varlen_rmsnorm_triton`, `varlen_layernorm_triton`). H100, fp16, 12160 × 4096:
+  - RMSNorm: **13.97×** speedup vs PyTorch reference (no native), PASS correctness
+  - LayerNorm: **1.31×** speedup vs `torch.nn.functional.layer_norm`, PASS correctness
+- **`examples/05_multimodal_interleaved.py`** — text + image-patch interleaving in one scree.Array.
+- **`docs/vllm-integration-sketch.md`** — architectural sketch of the vLLM/SGLang integration proposal.
+- **Array API conformance tests** (`tests/test_array_api.py`, 10 tests) — verifies the Array API contract on `scree.Array.values`.
+- **Cross-backend property tests** — 2 new hypothesis tests that exercise the invariants across NumPy + PyTorch + MLX + JAX in a single run.
 
 ### Investigated (deferred)
 - Triton autotune (3-config safe grid + autotune key=[]) ran 1.50× of FA-2 — worse than the hardcoded 1.21×. Autotune overhead appears to leak into per-iteration timing for short kernels, or the autotune picked a config that benchmarks fast in isolation but loses in the full bench loop. Reverted to hardcoded `(BLOCK_M=64, BLOCK_N=64, num_warps=4, num_stages=2)`. Probed safe configs documented in code comment for future re-evaluation.
-- `benchmarks/modal_autotune_probe.py` runs each config in series but the Triton 3.0 Hopper bug crashes the whole container, forcing Modal to retry. Future probe with `subprocess.run` isolation per config will map the full safe-set; this version still confirmed `(64, 32, 4, 3)` and `(64, 32, 4, 2)` as the fastest pre-crash candidates.
+- `benchmarks/modal_autotune_probe.py` runs each config in series but the Triton 3.0 Hopper bug crashes the whole container, forcing Modal to retry. The subprocess-isolated version (`modal_autotune_probe_isolated.py`) maps the full 18-safe / 6-unsafe split.
+- Per-shape autotune dispatch — the multi-shape sweep was N=1 per shape, not enough data to confidently route configs by `(head_dim, n_heads)`. The 5–10% potential gains don't justify the complexity in v0.0. Revisit when shape-specific perf becomes a bottleneck.
 
 ### Investigated (deferred)
 - Attempted `@triton.autotune` over a 24-config grid for `varlen_attention`. Hit a known Triton 3.0 compiler bug on Hopper: `SharedEncodingAttr builder when the MMAEncodingAttr is Hopper has not been implemented yet`. Modal retried 3× before failing. Reverted to the hardcoded `(BLOCK_M=64, BLOCK_N=64, num_warps=4, num_stages=2)` config that produced the original **1.21× of FA-2 varlen** result. Autotuning is deferred to v0.1 pending a Triton 3.1+ image on Modal.
