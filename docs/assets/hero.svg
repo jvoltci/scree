@@ -158,53 +158,52 @@
     <text x="140" y="38" font-size="11.5" fill="#64748B" font-weight="400" letter-spacing="0.3px" class="mono">ragged tensor primitive for variable-length sequence data</text>
   </g>
 
-  <!-- 3. Left Panel (Philosophical) -->
+  <!-- 3. Left Panel (The Metaphor) -->
   <g transform="translate(0, 0)">
     <!-- Titles -->
     <text x="45" y="92" font-size="10" font-weight="700" fill="#38BDF8" letter-spacing="1.5px">THE METAPHOR</text>
     <text x="45" y="114" font-size="16" font-weight="600" fill="#F1F5F9" letter-spacing="-0.2px">Fitted by Irregularity</text>
     <text x="45" y="132" font-size="11" fill="#64748B" font-style="italic">"Irregular shapes, fitted by their irregularity, not despite it."</text>
 
-
-    <!-- Mountain Slope and Wireframe Schematics -->
-    <g transform="translate(10, 10)">
+    <!-- Mountain Slope and Wireframe Schematics (Shifted down for absolute spacing) -->
+    <g transform="translate(10, 30)">
       <!-- Horizontal Base -->
-      <line x1="35" y1="285" x2="345" y2="285" stroke="#1E293B" stroke-width="1.2" />
+      <line x1="35" y1="265" x2="345" y2="265" stroke="#1E293B" stroke-width="1.2" />
       
       <!-- Struts / Grid projection lines -->
-      <line x1="75" y1="160" x2="75" y2="285" stroke="#1E293B" stroke-width="1" stroke-dasharray="3 3" />
-      <line x1="135" y1="210" x2="135" y2="285" stroke="#1E293B" stroke-width="1" stroke-dasharray="3 3" />
-      <line x1="195" y1="250" x2="195" y2="285" stroke="#1E293B" stroke-width="1" stroke-dasharray="3 3" />
-      <line x1="275" y1="250" x2="275" y2="285" stroke="#1E293B" stroke-width="1" stroke-dasharray="3 3" />
+      <line x1="75" y1="150" x2="75" y2="265" stroke="#1E293B" stroke-width="1" stroke-dasharray="3 3" />
+      <line x1="135" y1="200" x2="135" y2="265" stroke="#1E293B" stroke-width="1" stroke-dasharray="3 3" />
+      <line x1="195" y1="235" x2="195" y2="265" stroke="#1E293B" stroke-width="1" stroke-dasharray="3 3" />
+      <line x1="275" y1="235" x2="275" y2="265" stroke="#1E293B" stroke-width="1" stroke-dasharray="3 3" />
 
       <!-- The Slope Path -->
-      <path d="M 35,125 L 175,245 L 345,245" stroke="#334155" stroke-width="1.8" fill="none" stroke-linecap="round" />
+      <path d="M 35,115 L 175,235 L 345,235" stroke="#334155" stroke-width="1.8" fill="none" stroke-linecap="round" />
       
       <!-- Static Pile Shadows / Indicators -->
-      <rect x="250" y="220" width="90" height="23" rx="4" fill="#0A0F1D" stroke="#1E293B" stroke-width="1" stroke-dasharray="2 2" opacity="0.4" />
-      <rect x="170" y="220" width="76" height="23" rx="4" fill="#0A0F1D" stroke="#1E293B" stroke-width="1" stroke-dasharray="2 2" opacity="0.4" />
-      <rect x="200" y="195" width="56" height="23" rx="4" fill="#0A0F1D" stroke="#1E293B" stroke-width="1" stroke-dasharray="2 2" opacity="0.4" />
+      <rect x="250" y="210" width="90" height="23" rx="4" fill="#0A0F1D" stroke="#1E293B" stroke-width="1" stroke-dasharray="2 2" opacity="0.4" />
+      <rect x="170" y="210" width="76" height="23" rx="4" fill="#0A0F1D" stroke="#1E293B" stroke-width="1" stroke-dasharray="2 2" opacity="0.4" />
+      <rect x="200" y="185" width="56" height="23" rx="4" fill="#0A0F1D" stroke="#1E293B" stroke-width="1" stroke-dasharray="2 2" opacity="0.4" />
 
       <!-- Interlocking Falling Rocks (Animated!) -->
       <!-- Purple rock (Long) -->
-      <rect x="250" y="220" width="90" height="23" rx="4" fill="url(#purple-grad)" class="scree-block purple-block" />
+      <rect x="250" y="210" width="90" height="23" rx="4" fill="url(#purple-grad)" class="scree-block purple-block" />
       
       <!-- Teal rock (Medium) -->
-      <rect x="170" y="220" width="76" height="23" rx="4" fill="url(#teal-grad)" class="scree-block teal-block" />
+      <rect x="170" y="210" width="76" height="23" rx="4" fill="url(#teal-grad)" class="scree-block teal-block" />
       
       <!-- Amber rock (Short - stacked on top) -->
-      <rect x="200" y="195" width="56" height="23" rx="4" fill="url(#amber-grad)" class="scree-block amber-block" />
+      <rect x="200" y="185" width="56" height="23" rx="4" fill="url(#amber-grad)" class="scree-block amber-block" />
       
-      <!-- Tiny accent labels -->
-      <text x="35" y="115" font-size="9" fill="#475569" class="mono">SLOPE</text>
-      <text x="300" y="275" font-size="9" fill="#475569" class="mono" text-anchor="middle">SCREE PILE</text>
+      <!-- Tiny accent labels (Perfected vertical locations) -->
+      <text x="75" y="130" font-size="9" fill="#475569" class="mono">SLOPE</text>
+      <text x="300" y="285" font-size="9" fill="#475569" class="mono" text-anchor="middle">SCREE PILE</text>
     </g>
   </g>
 
   <!-- Middle Divider Line -->
   <line x1="415" y1="80" x2="415" y2="330" stroke="#1E293B" stroke-width="1.2" stroke-dasharray="3 3" />
 
-  <!-- 4. Right Panel (Practical) -->
+  <!-- 4. Right Panel (The Representation) -->
   <g transform="translate(0, 0)">
     <!-- Titles -->
     <text x="445" y="92" font-size="10" font-weight="700" fill="#38BDF8" letter-spacing="1.5px">THE REPRESENTATION</text>
@@ -268,71 +267,71 @@
       <text x="580" y="185" font-size="10" font-weight="600" fill="#EF4444" class="mono">⚡ 8 padding tokens wasted (38%)</text>
     </g>
 
-    <!-- SECTION B: Scree Packed Array -->
+    <!-- SECTION B: Scree Packed Array (Spatially isolated to prevent overlaps) -->
     <g transform="translate(5, 5)">
-      <text x="440" y="238" font-size="9.5" font-weight="600" fill="#64748B" letter-spacing="0.5px">SCREE FLAT PACKED ARRAY (ZERO WASTE)</text>
+      <text x="440" y="232" font-size="9.5" font-weight="600" fill="#64748B" letter-spacing="0.5px">SCREE FLAT PACKED ARRAY (ZERO WASTE)</text>
 
       <!-- Outer array frame border -->
-      <rect x="437" y="247" width="238" height="20" rx="4" fill="none" stroke="#1E293B" stroke-width="1.2" />
+      <rect x="437" y="282" width="238" height="20" rx="4" fill="none" stroke="#1E293B" stroke-width="1.2" />
 
       <!-- Token blocks: values (13 elements flat) -->
       <g id="packed-tokens">
         <!-- Teal Sequence (4) -->
-        <rect x="440" y="250" width="14" height="14" rx="2" fill="url(#teal-grad)" />
-        <rect x="458" y="250" width="14" height="14" rx="2" fill="url(#teal-grad)" />
-        <rect x="476" y="250" width="14" height="14" rx="2" fill="url(#teal-grad)" />
-        <rect x="494" y="250" width="14" height="14" rx="2" fill="url(#teal-grad)" />
+        <rect x="440" y="285" width="14" height="14" rx="2" fill="url(#teal-grad)" />
+        <rect x="458" y="285" width="14" height="14" rx="2" fill="url(#teal-grad)" />
+        <rect x="476" y="285" width="14" height="14" rx="2" fill="url(#teal-grad)" />
+        <rect x="494" y="285" width="14" height="14" rx="2" fill="url(#teal-grad)" />
 
         <!-- Amber Sequence (2) -->
-        <rect x="512" y="250" width="14" height="14" rx="2" fill="url(#amber-grad)" />
-        <rect x="530" y="250" width="14" height="14" rx="2" fill="url(#amber-grad)" />
+        <rect x="512" y="285" width="14" height="14" rx="2" fill="url(#amber-grad)" />
+        <rect x="530" y="285" width="14" height="14" rx="2" fill="url(#amber-grad)" />
 
         <!-- Purple Sequence (7) -->
-        <rect x="548" y="250" width="14" height="14" rx="2" fill="url(#purple-grad)" />
-        <rect x="566" y="250" width="14" height="14" rx="2" fill="url(#purple-grad)" />
-        <rect x="584" y="250" width="14" height="14" rx="2" fill="url(#purple-grad)" />
-        <rect x="602" y="250" width="14" height="14" rx="2" fill="url(#purple-grad)" />
-        <rect x="620" y="250" width="14" height="14" rx="2" fill="url(#purple-grad)" />
-        <rect x="638" y="250" width="14" height="14" rx="2" fill="url(#purple-grad)" />
-        <rect x="656" y="250" width="14" height="14" rx="2" fill="url(#purple-grad)" />
+        <rect x="548" y="285" width="14" height="14" rx="2" fill="url(#purple-grad)" />
+        <rect x="566" y="285" width="14" height="14" rx="2" fill="url(#purple-grad)" />
+        <rect x="584" y="285" width="14" height="14" rx="2" fill="url(#purple-grad)" />
+        <rect x="602" y="285" width="14" height="14" rx="2" fill="url(#purple-grad)" />
+        <rect x="620" y="285" width="14" height="14" rx="2" fill="url(#purple-grad)" />
+        <rect x="638" y="285" width="14" height="14" rx="2" fill="url(#purple-grad)" />
+        <rect x="656" y="285" width="14" height="14" rx="2" fill="url(#purple-grad)" />
       </g>
       
       <!-- Label "values" -->
-      <text x="684" y="261" font-size="10" font-weight="500" fill="#94A3B8" class="mono">values</text>
+      <text x="684" y="296" font-size="10" font-weight="500" fill="#94A3B8" class="mono">values</text>
 
       <!-- Offsets scale & ticks -->
       <g transform="translate(0, 0)">
         <!-- Horizontal Ruler Line -->
-        <line x1="438" y1="285" x2="672" y2="285" stroke="#475569" stroke-width="1.2" />
+        <line x1="438" y1="315" x2="672" y2="315" stroke="#475569" stroke-width="1.2" />
 
         <!-- Ticks -->
-        <line x1="438" y1="282" x2="438" y2="288" stroke="#475569" stroke-width="1.2" />
-        <line x1="510" y1="282" x2="510" y2="288" stroke="#475569" stroke-width="1.2" />
-        <line x1="546" y1="282" x2="546" y2="288" stroke="#475569" stroke-width="1.2" />
-        <line x1="672" y1="282" x2="672" y2="288" stroke="#475569" stroke-width="1.2" />
+        <line x1="438" y1="312" x2="438" y2="318" stroke="#475569" stroke-width="1.2" />
+        <line x1="510" y1="312" x2="510" y2="318" stroke="#475569" stroke-width="1.2" />
+        <line x1="546" y1="312" x2="546" y2="318" stroke="#475569" stroke-width="1.2" />
+        <line x1="672" y1="312" x2="672" y2="318" stroke="#475569" stroke-width="1.2" />
 
         <!-- Index Labels -->
-        <text x="438" y="300" font-size="9" fill="#94A3B8" class="mono" text-anchor="middle">0</text>
-        <text x="510" y="300" font-size="9" fill="#94A3B8" class="mono" text-anchor="middle">4</text>
-        <text x="546" y="300" font-size="9" fill="#94A3B8" class="mono" text-anchor="middle">6</text>
-        <text x="672" y="300" font-size="9" fill="#94A3B8" class="mono" text-anchor="middle">13</text>
+        <text x="438" y="330" font-size="9" fill="#94A3B8" class="mono" text-anchor="middle">0</text>
+        <text x="510" y="330" font-size="9" fill="#94A3B8" class="mono" text-anchor="middle">4</text>
+        <text x="546" y="330" font-size="9" fill="#94A3B8" class="mono" text-anchor="middle">6</text>
+        <text x="672" y="330" font-size="9" fill="#94A3B8" class="mono" text-anchor="middle">13</text>
 
         <!-- Label "offsets" -->
-        <text x="684" y="297" font-size="10.5" font-weight="600" fill="#38BDF8" class="mono">offsets = [0, 4, 6, 13]</text>
+        <text x="684" y="327" font-size="10.5" font-weight="600" fill="#38BDF8" class="mono">offsets = [0, 4, 6, 13]</text>
       </g>
 
-      <!-- Varlen Attention Arcs (Pulsing!) -->
+      <!-- Varlen Attention Arcs (Pulsing completely clear of the title) -->
       <g>
         <!-- Teal Attention Scope -->
-        <path d="M 447,247 Q 473,222 499,247" fill="none" stroke="url(#teal-grad)" stroke-width="1.5" opacity="0.8" filter="url(#glow-teal)" class="attention-arc" />
+        <path d="M 447,282 Q 473,257 499,282" fill="none" stroke="url(#teal-grad)" stroke-width="1.5" opacity="0.8" filter="url(#glow-teal)" class="attention-arc" />
         
         <!-- Amber Attention Scope -->
-        <path d="M 519,247 Q 528,236 537,247" fill="none" stroke="url(#amber-grad)" stroke-width="1.5" opacity="0.8" filter="url(#glow-amber)" class="attention-arc" />
+        <path d="M 519,282 Q 528,271 537,282" fill="none" stroke="url(#amber-grad)" stroke-width="1.5" opacity="0.8" filter="url(#glow-amber)" class="attention-arc" />
         
         <!-- Purple Attention Scope -->
-        <path d="M 555,247 Q 609,202 663,247" fill="none" stroke="url(#purple-grad)" stroke-width="1.5" opacity="0.8" filter="url(#glow-purple)" class="attention-arc" />
+        <path d="M 555,282 Q 609,237 663,282" fill="none" stroke="url(#purple-grad)" stroke-width="1.5" opacity="0.8" filter="url(#glow-purple)" class="attention-arc" />
         
-        <text x="684" y="222" font-size="9.5" font-weight="600" fill="#4FACFE" class="mono">varlen_attention</text>
+        <text x="684" y="262" font-size="9.5" font-weight="600" fill="#4FACFE" class="mono">varlen_attention</text>
       </g>
     </g>
   </g>

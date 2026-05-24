@@ -31,10 +31,13 @@ jobs:
           python-version: "3.11"
           cache: pip
 
-      - name: Install mkdocs-material
+      - name: Install docs dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install mkdocs-material
+          pip install -e ".[docs]"
+
+      - name: Cairo runtime for social-card rendering
+        run: sudo apt-get update && sudo apt-get install -y libcairo2-dev pkg-config
 
       - name: Build docs site
         # Not --strict: docs intentionally link to source files outside docs/.

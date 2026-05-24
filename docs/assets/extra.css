@@ -1,0 +1,122 @@
+/* scree brand palette */
+:root {
+  --md-primary-fg-color: #1e3a5f;
+  --md-primary-fg-color--light: #2c5282;
+  --md-primary-fg-color--dark: #1a365d;
+  --md-accent-fg-color: #d97706;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #2c5282;
+  --md-primary-fg-color--light: #4a7ba8;
+  --md-primary-fg-color--dark: #1a365d;
+  --md-accent-fg-color: #f59e0b;
+  --md-default-bg-color: #0d1421;
+}
+
+/* Hero on landing page */
+.scree-hero {
+  text-align: center;
+  margin: 2rem 0 3rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, var(--md-primary-fg-color) 0%, var(--md-primary-fg-color--dark) 100%);
+  color: white;
+  border-radius: 8px;
+}
+
+.scree-hero h1 {
+  color: white;
+  font-size: 3rem;
+  margin: 0 0 0.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.scree-hero p.tagline {
+  font-size: 1.25rem;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.scree-hero .badges {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.scree-hero .badges img {
+  height: 22px;
+}
+
+/* Metric cards for the landing */
+.scree-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.scree-metric {
+  padding: 1.5rem;
+  border-radius: 8px;
+  background: var(--md-code-bg-color);
+  border-left: 4px solid var(--md-accent-fg-color);
+}
+
+.scree-metric .value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--md-primary-fg-color);
+  line-height: 1;
+  margin-bottom: 0.3rem;
+  font-feature-settings: "tnum";
+}
+
+[data-md-color-scheme="slate"] .scree-metric .value {
+  color: var(--md-accent-fg-color);
+}
+
+.scree-metric .label {
+  font-size: 0.85rem;
+  color: var(--md-default-fg-color--light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Tighter code blocks */
+.md-typeset pre > code {
+  font-size: 0.84em;
+}
+
+/* Subtle nav-tab underline on active */
+.md-tabs__link--active {
+  font-weight: 600;
+}
+
+/* Better-looking tables */
+.md-typeset table:not([class]) th {
+  background: var(--md-primary-fg-color);
+  color: white;
+  font-weight: 600;
+}
+
+/* Code copy button: always visible (not just hover) */
+.md-clipboard {
+  color: var(--md-default-fg-color--lighter);
+}
+
+/* API reference (mkdocstrings) styling */
+.doc-symbol-class::after { content: "class"; }
+.doc-symbol-function::after { content: "func"; }
+.doc-symbol-method::after { content: "method"; }
+.doc-symbol-attribute::after { content: "attr"; }
+
+.doc-heading code {
+  font-weight: 600;
+}
+
+.doc-contents > h4 {
+  margin-top: 1.5rem;
+}
