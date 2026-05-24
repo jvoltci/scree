@@ -119,8 +119,11 @@ present. Triton kernels at FlashAttention-varlen parity ship in v0.1.
 | Reference varlen attention / layernorm / softmax | ✅ |
 | Bridges: torch.nested, HF padded, FA cu_seqlens, DLPack | ✅ |
 | NumPy + PyTorch + MLX + JAX backends | ✅ |
-| Triton kernels at FA-varlen parity | 🟡 next |
-| Triton autotune (Triton 3.1+) | 🟡 next |
+| Triton `varlen_attention` forward (H100) | ✅ 1.30× of FA-2 |
+| Triton `varlen_attention` backward (FA-2 style: preprocess + dKV + dQ) | ✅ 1.61× of FA-2 (full training step) |
+| Triton `varlen_rmsnorm` (H100) | ✅ 13.97× of PyTorch reference |
+| Triton `varlen_layernorm` (H100) | ✅ 1.31× of `torch.nn.functional.layer_norm` |
+| Triton autotune (Triton 3.1+ needed for full safe-set) | 🟡 deferred |
 
 ## Install
 
